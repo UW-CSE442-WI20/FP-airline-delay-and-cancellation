@@ -14,29 +14,42 @@
   // LOAD DATA
   function loadData() {
     console.log("begin");
+    // d3.queue()
+    //   .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/8dfcf41b310ec624b2a0f6816faa7b30/raw/2a8a46838d5cd6fb03cd3ac23d21acd4fca7690b/flight0912.csv") // 09-12
+    //   .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/0e96d687ebf9f5edfb6780ac450cc7c0/raw/c2f1ee2838f23b4057d0745d0c022709fe67d8ff/flight1315.csv") // 13-15
+    //   .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/ffa8ffc1b0162a121690768c4a7ef4e3/raw/e6f4af22b1328688c892a380cb9b593deddb4154/flight1618.csv") // 16-18
+    //   .await(ready);
+
     d3.queue()
-      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/8dfcf41b310ec624b2a0f6816faa7b30/raw/2a8a46838d5cd6fb03cd3ac23d21acd4fca7690b/flight0912.csv") // 09-12
-      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/0e96d687ebf9f5edfb6780ac450cc7c0/raw/c2f1ee2838f23b4057d0745d0c022709fe67d8ff/flight1315.csv") // 13-15
-      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/ffa8ffc1b0162a121690768c4a7ef4e3/raw/e6f4af22b1328688c892a380cb9b593deddb4154/flight1618.csv") // 16-18
+      .defer(d3.csv, 'flight2017.csv')
       .await(ready);
 
-      function ready(error, data1, data2, data3) {
-          data1.forEach(function(d) {
-              mainData.push(d);
-          });
-          data2.forEach(function(d) {
-              mainData.push(d);
-          });
-          data3.forEach(function(d) {
-              mainData.push(d);
-          });
+      // function ready(error, data1, data2, data3) {
+      //     data1.forEach(function(d) {
+      //         mainData.push(d);
+      //     });
+      //     data2.forEach(function(d) {
+      //         mainData.push(d);
+      //     });
+      //     data3.forEach(function(d) {
+      //         mainData.push(d);
+      //     });
+      // }
+
+      function ready(error, data) {
+        console.log('helo');
+        for (var i = 0; i < 5; i++) {
+          console.log(data[i]);
+        }
       }
+
+      console.log('here');
   }
   //console.log(mainData);
-  mainData.forEach(function(item, index) {
-      origin.push(item.Origin);
-      console.log(item.Origin);
-  });
+  // mainData.forEach(function(item, index) {
+  //     origin.push(item.Origin);
+  //     console.log(item.Origin);
+  // });
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************
   function autocomplete(inp, arr) {
