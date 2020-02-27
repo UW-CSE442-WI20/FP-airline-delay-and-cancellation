@@ -20,9 +20,9 @@
     //   .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/ffa8ffc1b0162a121690768c4a7ef4e3/raw/e6f4af22b1328688c892a380cb9b593deddb4154/flight1618.csv") // 16-18
     //   .await(ready);
 
-    d3.queue()
-      .defer(d3.csv, 'flight2017.csv')
-      .await(ready);
+    // d3.queue()
+    //   .defer(d3.csv, 'flight2017.csv')
+    //   .await(ready);
 
       // function ready(error, data1, data2, data3) {
       //     data1.forEach(function(d) {
@@ -37,19 +37,28 @@
       // }
 
       function ready(error, data) {
-        console.log('helo');
+        // console.log('helo');
         for (var i = 0; i < 5; i++) {
-          console.log(data[i]);
+          // console.log(data[i].Origin);
         }
       }
 
-      console.log('here');
-  }
+      // console.log('here');
+    }
   //console.log(mainData);
   // mainData.forEach(function(item, index) {
   //     origin.push(item.Origin);
   //     console.log(item.Origin);
   // });
+
+// const airportList = require('airport-list.csv');
+// console.log(airportList) // prints out a string, not parsed data
+const d3 = require('d3')
+
+d3.csv('airport_list.csv')
+  .then((data) => {
+    console.log('Dynamically loaded CSV data', data);
+  })
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************
   function autocomplete(inp, arr) {
