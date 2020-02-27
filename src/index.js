@@ -3,10 +3,42 @@
   window.addEventListener('load', init);
 
   function init() {
+    const d3 = require("d3");
+    loadData();
     /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-    autocomplete(document.getElementById("myInput"), countries);
-  }
+    autocomplete(document.getElementById("myInput"), origin);
 
+  }
+  var mainData = [];
+  var origin = [];
+  // LOAD DATA
+  function loadData() {
+    console.log("begin");
+    d3.queue()
+      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/8dfcf41b310ec624b2a0f6816faa7b30/raw/2a8a46838d5cd6fb03cd3ac23d21acd4fca7690b/flight0912.csv") // 09-12
+      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/0e96d687ebf9f5edfb6780ac450cc7c0/raw/c2f1ee2838f23b4057d0745d0c022709fe67d8ff/flight1315.csv") // 13-15
+      .defer(d3.csv, "https://gist.githubusercontent.com/aliciamaydeline/ffa8ffc1b0162a121690768c4a7ef4e3/raw/e6f4af22b1328688c892a380cb9b593deddb4154/flight1618.csv") // 16-18
+      .await(ready);
+
+      function ready(error, data1, data2, data3) {
+          data1.forEach(function(d) {
+              mainData.push(d);
+          });
+          data2.forEach(function(d) {
+              mainData.push(d);
+          });
+          data3.forEach(function(d) {
+              mainData.push(d);
+          });
+      }
+  }
+  //console.log(mainData);
+  mainData.forEach(function(item, index) {
+      origin.push(item.Origin);
+      console.log(item.Origin);
+  });
+
+  // AUTOCOMPLETE SEARCH FIELD ***********************************************
   function autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
@@ -104,6 +136,8 @@
         closeAllLists(e.target);
     });
   }
+  // END AUTOCOMPLETE SEARCH FIELD *******************************************
+
 
   /*An array containing all the country names in the world:*/
   var countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre & Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts & Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
