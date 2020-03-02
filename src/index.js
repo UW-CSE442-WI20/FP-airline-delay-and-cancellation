@@ -1,51 +1,141 @@
+import {csv} from 'd3';
+
 "use strict";
 (function() {
   window.addEventListener('load', init);
-  //const d3 = require('d3')
+  
+  var mainData = [];
+  var airportList = [];
+  var flightList = [];
+  var svg;
 
   function init() {
-    const d3 = require("d3");
-    loadData();
-    /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-    autocomplete(document.getElementById("myInput"), airport);
+    const d3 = require('d3');
 
+    // initialize svg
+    var margin = {top: 40, right: 20, bottom: 60, left: 130};
+    var width = 1100 - margin.left - margin.right;
+    var height = 700 - margin.top - margin.bottom;
+
+    svg = d3.select('body').append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
+
+    loadAirportData();
+    
+    // for search bars
+    autocomplete(document.getElementById("originInput"), airportList);
+    autocomplete(document.getElementById("destInput"), airportList);
   }
-  var mainData = [];
-  var airport = [];
-  // LOAD DATA
-  function loadData() {
-    console.log("begin");
-    d3.queue()
-      .defer(d3.csv, 'flight2014.csv')
-      .defer(d3.csv, 'flight2015.csv')
-      .defer(d3.csv, 'flight2016.csv')
-      .defer(d3.csv, 'flight2017.csv')
-      .defer(d3.csv, 'flight2018.csv')
-      .defer(d3.csv, 'airport_list.csv')
-      .await(ready);
+  
+  // LOAD ORIGIN DATA
+  function loadAirportData() {
+    d3.csv('airport_list.csv').then(function(data) {
+      data.forEach(function(d) {
+        airportList.push(d.City + ' (' + d.Airport + ')');
+      })
+    })
+  }
 
-      function ready(error, data1, data2, data3, data4, data5, data6) {
-          data1.forEach(function(d) {
-              //do something with data here don't have to convert to array
-              //mainData.push(d);
-              //console.log(d.Destination);
-          });
-          console.log("data1", data1[0].Destination);
-          console.log("data2", data2[0].Destination);
-          console.log("data3", data3[0].Destination);
-          console.log("data4", data4[0].Destination);
-          console.log("data5", data5[0].Destination);
-          // Getting array for airport selection
-          data6.forEach(function(d) {
-            airport.push(d.City + " (" + d.Airport + ")");
-          });
+  // GET ORIGIN AND DESTINATION INPUT
+  // and then load the flight data by origin
+  // once the origin has been chosen
+  function loadFlightData() {
+    var origin = document.getElementById('originInput').value;
+    var dest = document.getElementById('destInput').value;
+
+    origin = origin.substring(origin.length - 4, origin.length - 1);
+    dest = dest.substring(dest.length - 4, dest.length - 1);
+    console.log("origin " + origin + ", destination " + dest);
+    
+    if (dest) {
+      d3.csv(origin + '.csv')
+      .then(function(data) {
+        flightList = [];
+        console.log(data[0].Destination);
+        console.log("dest: " + dest);
+        data.forEach(function(d) {
+          if (d.Destination == dest) {
+            console.log('inside if');
+            flightList.push(d);
+          }
+        })
+        
+        if (flightList.length == 0) {
+          // print message
+          // "there is no available flight data for this itinerary"
+          console.log("no flight");
+        }
+
+        flightList.forEach(function(d) {
+          console.log(d);
+        })
+      });
+    }
+  }
+
+  function delayedByMonths() {
+    if (flightList.length != 0) {
+      // first, getting all the delayed flights
+      // delayed flights means departure delay + arrival delay > 0 mins
+      var delayed = [];
+      var airline = [];
+      var month = [];
+      var year = [];
+      var delayedSummary = [];
+
+      flightList.forEach(function(d) {
+        if (d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'] > 0) {
+          delayed.push(d);
+        }
+      })
+
+      delayed.forEach(function(d) {
+        airline.push(d.Airline);
+        month.push(d.Month);
+        year.push(d.Year);
+      })
+      
+      airline = airline.filter(onlyUnique);
+      
+      for (var i = 0; i < airline.length; i++) {
+        for (var j = 0; j < month.length; j++) {
+          for (var k = 0; k < year.length; k++) {
+            var totalDelayedTime = 0;
+            delayed.forEach(function(d) {
+              if (d.Airline === airline[i] && d.Month === month[j] && d.Year === year[k]) {
+                var total = d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'];
+                totalDelayedTime += total;
+              }
+            })
+
+            var data = {
+              airline: airline[i],
+              month: month[j],
+              year: year[k],
+              totalDelayTime: totalDelayedTime
+            };
+            delayedSummary.push(data);
+          }
+        }
       }
+
+      console.log(delayedSummary);
+
+      // draw initial bar chart
+      // summary of all delayed flights, all airline
+      var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+      var y = d3.scale.linear().range([height], 0);
+    }
   }
 
-// const airportList = require('airport-list.csv');
-// console.log(airportList) // prints out a string, not parsed data
-
-
+  // pass in array
+  // then get back array with no duplicate values
+  function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+  }
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************
   function autocomplete(inp, arr) {
@@ -80,6 +170,7 @@
             b.addEventListener("click", function(e) {
                 /*insert the value for the autocomplete text field:*/
                 inp.value = this.getElementsByTagName("input")[0].value;
+                loadFlightData();
                 /*close the list of autocompleted values,
                 (or any other open lists of autocompleted values:*/
                 closeAllLists();
@@ -146,9 +237,5 @@
     });
   }
   // END AUTOCOMPLETE SEARCH FIELD *******************************************
-
-
-  /*An array containing all the country names in the world:*/
-  var countries = ["Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua & Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia & Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei","Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central Arfrican Republic","Chad","Chile","China","Colombia","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia","Cuba","Curacao","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","French West Indies","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala","Guernsey","Guinea","Guinea Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Isle of Man","Israel","Italy","Jamaica","Japan","Jersey","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Macedonia","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nauro","Nepal","Netherlands","Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North Korea","Norway","Oman","Pakistan","Palau","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Puerto Rico","Qatar","Reunion","Romania","Russia","Rwanda","Saint Pierre & Miquelon","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","St Kitts & Nevis","St Lucia","St Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor L'Este","Togo","Tonga","Trinidad & Tobago","Tunisia","Turkey","Turkmenistan","Turks & Caicos","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States of America","Uruguay","Uzbekistan","Vanuatu","Vatican City","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe"];
 
 })();

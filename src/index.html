@@ -4,26 +4,29 @@
     <meta charset="UTF-8">
     <title>Airline Delay and Cancellation</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3.v5.js"></script>
   </head>
   <body>
     <section class="main-banner">
         <h1>Airline Delay and Cancellation</h1>
-        <div class="text"> Content description here </div>
         <div class="image">
 <!--            <img src="../img/home-airplane.png" alt="">-->
         </div>
     </section>
-    <section>
     <div>
+      <div class="text">Where from?</div>
       <form autocomplete="off" action="/action_page.php">
         <div class="autocomplete" style="width:300px;">
-          <input id="myInput" type="text" name="myCountry" placeholder="Country">
+          <input id="originInput" type="text" name="originCity" placeholder="Origin City">
         </div>
-        <input type="submit">
       </form>
-      <script src="./index.js"></script>
+      <div class="text">Where to?</div>
+      <form autocomplete="off" action="/action_page.php">
+        <div class="autocomplete" style="width:300px;">
+          <input id="destInput" type="text" name="destCity" placeholder="Destination City">
+        </div>
+      </form>
     </div>
-    </section>
+    <script src="./index.js"></script>
   </body>
 </html>
