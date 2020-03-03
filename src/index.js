@@ -7,24 +7,13 @@ import {csv} from 'd3';
   var mainData = [];
   var airportList = [];
   var flightList = [];
+  var delayTimeList = [];
   var svg;
 
   function init() {
     const d3 = require('d3');
-
-    // initialize svg
-    var margin = {top: 40, right: 20, bottom: 60, left: 130};
-    var width = 1100 - margin.left - margin.right;
-    var height = 700 - margin.top - margin.bottom;
-
-    svg = d3.select('body').append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
-
     loadAirportData();
-    
+      
     // for search bars
     autocomplete(document.getElementById("originInput"), airportList);
     autocomplete(document.getElementById("destInput"), airportList);
@@ -48,88 +37,237 @@ import {csv} from 'd3';
 
     origin = origin.substring(origin.length - 4, origin.length - 1);
     dest = dest.substring(dest.length - 4, dest.length - 1);
-    console.log("origin " + origin + ", destination " + dest);
+    // console.log("origin " + origin + ", destination " + dest);
     
     if (dest) {
       d3.csv(origin + '.csv')
       .then(function(data) {
         flightList = [];
-        console.log(data[0].Destination);
-        console.log("dest: " + dest);
+        // console.log(data[0].Destination);
+        // console.log("dest: " + dest);
         data.forEach(function(d) {
           if (d.Destination == dest) {
-            console.log('inside if');
+            // console.log('inside if');
             flightList.push(d);
           }
         })
         
         if (flightList.length == 0) {
           // print message
-          // "there is no available flight data for this itinerary"
-          console.log("no flight");
+          alert("there is no available flight data for this itinerary");
         }
 
-        flightList.forEach(function(d) {
-          console.log(d);
-        })
+        // flightList.forEach(function(d) {
+        //   console.log(d);
+        // })
+        drawDelayedBars();
       });
     }
   }
 
-  function delayedByMonths() {
-    if (flightList.length != 0) {
-      // first, getting all the delayed flights
-      // delayed flights means departure delay + arrival delay > 0 mins
-      var delayed = [];
-      var airline = [];
-      var month = [];
-      var year = [];
-      var delayedSummary = [];
+  function drawDelayedBars() {
+    // MAKE LINE CHART
+    //------------------------1. PREPARATION------------------------//
+    //-----------------------------SVG------------------------------//
+    const width = 960;
+    const height = 500;
+    const margin = 5;
+    const padding = 5;
+    const adj = 30;
+    console.log('halo1');
+    // we are appending SVG first
+    svg = d3.select("div#container").append("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "-"
+              + adj + " -"
+              + adj + " "
+              + (width + adj *3) + " "
+              + (height + adj*3))
+        .style("padding", padding)
+        .style("margin", margin)
+        .classed("svg-content", true);
+    console.log('halo2');
+    //-----------------------------DATA-----------------------------//
+    const timeConv = d3.timeParse("%d-%b-%Y");
+    const dataset = d3.csv("data.csv");
 
-      flightList.forEach(function(d) {
-        if (d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'] > 0) {
-          delayed.push(d);
-        }
+    // console.log('begin');
+    // flightList.forEach(function(d) {
+    //   console.log(d);
+    // })
+    // console.log('end');
+
+    // summarize delay time
+    var delayTimeByMonth = d3.nest()
+      .key(function(d) { return d.Month; })
+      .rollup(function(v) { return 
+        airline:
+        avgDelay: d3.mean(v, function(d) { return d['Departure Delay Time (mins)']; }); 
       })
+      .object(flightList);
+    console.log('begin');
+    console.log(delayTimeByMonth);
+    console.log('end');
 
-      delayed.forEach(function(d) {
-        airline.push(d.Airline);
-        month.push(d.Month);
-        year.push(d.Year);
-      })
-      
-      airline = airline.filter(onlyUnique);
-      
-      for (var i = 0; i < airline.length; i++) {
-        for (var j = 0; j < month.length; j++) {
-          for (var k = 0; k < year.length; k++) {
-            var totalDelayedTime = 0;
-            delayed.forEach(function(d) {
-              if (d.Airline === airline[i] && d.Month === month[j] && d.Year === year[k]) {
-                var total = d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'];
-                totalDelayedTime += total;
-              }
-            })
-
-            var data = {
-              airline: airline[i],
-              month: month[j],
-              year: year[k],
-              totalDelayTime: totalDelayedTime
+    // console.log(dataset);
+    // d3.json(delayTimeByMonth, function(data) {
+    dataset.forEach(function(data) {
+      var slices = data.columns.slice(1).map(function(id) {
+        return {
+          id: id,
+          values: data.map(function(d){
+            return {
+              date: timeConv(d.date),
+              measurement: +d[id]
             };
-            delayedSummary.push(data);
-          }
-        }
-      }
+          })
+        };
+      });
+      console.log(slices);
+      console.log(dataset);
+    });
 
-      console.log(delayedSummary);
+    // var temp = convertToCSV(delayTimeByMonth);
+    // console.log(temp);
+    // // temp.forEach(function(d) {
+    // //   console.log(d);
+    // // })
 
-      // draw initial bar chart
-      // summary of all delayed flights, all airline
-      var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-      var y = d3.scale.linear().range([height], 0);
-    }
+    // var headers = {
+      
+    // }
+
+    exportCSVFile(headers, delayTimeByMonth, "delay-time");
+      
+    //----------------------------SCALES----------------------------//
+    // const xScale = d3.scaleTime().range([0,width]);
+    // const yScale = d3.scaleLinear().rangeRound([height, 0]);
+    // xScale.domain(d3.extent(data, function(d){
+    //     return timeConv(d.date)}));
+    // yScale.domain([(0), d3.max(slices, function(c) {
+    //     return d3.max(c.values, function(d) {
+    //         return d.measurement + 4; });
+    //         })
+    //     ]);
+      
+    //-----------------------------AXES-----------------------------//
+    // const yaxis = d3.axisLeft()
+    //     .ticks((slices[0].values).length)
+    //     .scale(yScale);
+      
+    // const xaxis = d3.axisBottom()
+    //     .ticks(d3.timeDay.every(1))
+    //     .tickFormat(d3.timeFormat('%b %d'))
+    //     .scale(xScale);
+      
+    //----------------------------LINES-----------------------------//
+    // const line = d3.line()
+    //     .x(function(d) { return xScale(d.date); })
+    //     .y(function(d) { return yScale(d.measurement); });
+
+    // let id = 0;
+    // const ids = function () {
+    //     return "line-"+id++;
+    // }  
+
+    //---------------------------TOOLTIP----------------------------//
+
+
+    //-------------------------2. DRAWING---------------------------//
+    //-----------------------------AXES-----------------------------//
+    // svg.append("g")
+    //     .attr("class", "axis")
+    //     .attr("transform", "translate(0," + height + ")")
+    //     .call(xaxis);
+      
+    // svg.append("g")
+    //     .attr("class", "axis")
+    //     .call(yaxis)
+    //     .append("text")
+    //     .attr("transform", "rotate(-90)")
+    //     .attr("dy", ".75em")
+    //     .attr("y", 6)
+    //     .style("text-anchor", "end")
+    //     .text("Frequency");
+      
+    //----------------------------LINES-----------------------------//
+    // const lines = svg.selectAll("lines")
+    //     .data(slices)
+    //     .enter()
+    //     .append("g");
+      
+    //     lines.append("path")
+    //     .attr("class", ids)
+    //     .attr("d", function(d) { return line(d.values); });
+      
+    //     lines.append("text")
+    //     .attr("class","serie_label")
+    //     .datum(function(d) {
+    //         return {
+    //             id: d.id,
+    //             value: d.values[d.values.length - 1]}; })
+    //     .attr("transform", function(d) {
+    //             return "translate(" + (xScale(d.value.date) + 10)  
+    //             + "," + (yScale(d.value.measurement) + 5 )+ ")"; })
+    //     .attr("x", 5)
+    //     .text(function(d) { return ("Serie ") + d.id; });
+
+    //---------------------------POINTS-----------------------------// 
+
+    //---------------------------EVENTS-----------------------------// 
+    
+    // LINE CHART END
+  
   }
+
+
+  function convertToCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        for (var index in array[i]) {
+            if (line != '') line += ','
+
+            line += array[i][index];
+        }
+
+        str += line + '\r\n';
+    }
+
+    return str;
+  }
+
+  function exportCSVFile(headers, items, fileTitle) {
+    if (headers) {
+      items.unshift(headers);
+    }
+
+    // Convert Object to JSON
+    var jsonObject = JSON.stringify(items);
+
+    var csv = this.convertToCSV(jsonObject);
+
+    var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, exportedFilenmae);
+    } else {
+      var link = document.createElement("a");
+      if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", exportedFilenmae);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  } 
 
   // pass in array
   // then get back array with no duplicate values
