@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Airline Delay and Cancellation</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   </head>
   <body>
     <section class="main-banner">
@@ -13,6 +14,7 @@
 <!--            <img src="../img/home-airplane.png" alt="">-->
         </div>
     </section>
+    <section>
     <div>
       <div class="text">Where from?</div>
       <form autocomplete="off" action="/action_page.php">
@@ -27,6 +29,11 @@
         </div>
       </form>
     </div>
+    </section>
+    <section>
     <script src="./index.js"></script>
+        <div class="text">Cancellation Reasons</div>
+    <div id="cancellation"></div>
+    </section>
   </body>
 </html>

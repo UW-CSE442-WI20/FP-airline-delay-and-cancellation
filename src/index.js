@@ -54,11 +54,11 @@ import {csv} from 'd3';
       d3.csv(origin + '.csv')
       .then(function(data) {
         flightList = [];
-        console.log(data[0].Destination);
-        console.log("dest: " + dest);
+        //console.log(data[0].Destination);
+        //console.log("dest: " + dest);
         data.forEach(function(d) {
           if (d.Destination == dest) {
-            console.log('inside if');
+            //console.log('inside if');
             flightList.push(d);
           }
         })
@@ -70,71 +70,111 @@ import {csv} from 'd3';
         }
 
         flightList.forEach(function(d) {
-          console.log(d);
+          //console.log(d);
         })
+        drawCancel("");
       });
     }
-  }
 
-  function delayedByMonths() {
-    if (flightList.length != 0) {
-      // first, getting all the delayed flights
-      // delayed flights means departure delay + arrival delay > 0 mins
-      var delayed = [];
-      var airline = [];
-      var month = [];
-      var year = [];
-      var delayedSummary = [];
-
-      flightList.forEach(function(d) {
-        if (d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'] > 0) {
-          delayed.push(d);
-        }
-      })
-
-      delayed.forEach(function(d) {
-        airline.push(d.Airline);
-        month.push(d.Month);
-        year.push(d.Year);
-      })
-      
-      airline = airline.filter(onlyUnique);
-      
-      for (var i = 0; i < airline.length; i++) {
-        for (var j = 0; j < month.length; j++) {
-          for (var k = 0; k < year.length; k++) {
-            var totalDelayedTime = 0;
-            delayed.forEach(function(d) {
-              if (d.Airline === airline[i] && d.Month === month[j] && d.Year === year[k]) {
-                var total = d['Departure Delay Time (mins)'] + d['Arrival Delay Time (mins)'];
-                totalDelayedTime += total;
-              }
-            })
-
-            var data = {
-              airline: airline[i],
-              month: month[j],
-              year: year[k],
-              totalDelayTime: totalDelayedTime
-            };
-            delayedSummary.push(data);
-          }
-        }
-      }
-
-      console.log(delayedSummary);
-
-      // draw initial bar chart
-      // summary of all delayed flights, all airline
-      var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-      var y = d3.scale.linear().range([height], 0);
-    }
   }
 
   // pass in array
   // then get back array with no duplicate values
   function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
+  }
+
+  // Cancellation Pie Chart
+  function drawCancel(airline) {
+    //console.log("here");
+    var airlineName = 'SkyWest Airlines Inc. ';
+    var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
+    // Delete old svg before drawing a new one
+    d3.select("svg").remove();
+    d3.selectAll("svg > *").remove();
+    if (flightList.length != 0) {
+    flightList.forEach(function(d) {
+        if (d.Airline == airlineName) {
+            total++;
+            if (d['Flight Cancellation'] == 1) {
+               if (d['Cancellation Reason'] == 'Airline')
+                 carrier++;
+               if (d['Cancellation Reason'] == 'Weather')
+                 weather++;
+               if (d['Cancellation Reason'] == 'National Air System')
+                 nationalAir++;
+               if (d['Cancellation Reason'] == 'Security')
+                 security++;
+            }
+        }
+    });
+
+
+//   console.log("Airline" + carrier);
+//   console.log("Weather" + weather);
+//   console.log("National" + nationalAir);
+//   console.log("Security" + security);
+//   console.log("Total" + total);
+   // set the dimensions and margins of the graph
+   var width = 450,
+       height = 450,
+       margin = 40;
+
+   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+   var radius = Math.min(width, height) / 2 - margin;
+
+   // append the svg object to the div called 'my_dataviz'
+   var svg = d3.select("#cancellation")
+     .append("svg")
+       .attr("width", width)
+       .attr("height", height)
+     .append("g")
+       .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+   // Create dummy data
+   //var data = {a: 9, b: 20, c:30, d:8, e:12}
+   var data = {'Airline' : carrier, 'Weather': weather, 'National Air System': nationalAir, 'Security': security}
+
+   // set the color scale
+   var color = d3.scaleOrdinal()
+     .domain(data)
+     .range(d3.schemeSet2);
+   // Compute the position of each group on the pie:
+   var pie = d3.pie()
+     .value(function(d) {return d.value; })
+   var data_ready = pie(d3.entries(data))
+   // Now I know that group A goes from 0 degrees to x degrees and so on.
+
+   // shape helper to build arcs:
+   var arcGenerator = d3.arc()
+     .innerRadius(radius - radius/3)
+     .outerRadius(radius)
+
+   // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+   svg
+     .selectAll('mySlices')
+     .data(data_ready)
+     .enter()
+     .append('path')
+       .attr('d', arcGenerator)
+       .attr('fill', function(d){ return(color(d.data.key)) })
+       .attr("stroke", "black")
+       .style("stroke-width", "2px")
+       .style("opacity", 0.7)
+
+   // Now add the annotation. Use the centroid method to get the best coordinates
+   svg
+     .selectAll('mySlices')
+     .data(data_ready)
+     .enter()
+     .append('text')
+     .text(function(d){ if(d.data.value != 0) return d.data.key})
+     .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+     .style("text-anchor", "middle")
+     .style("font-size", 17)
+     } else {
+        //document.write("no flight");
+     }
   }
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************
