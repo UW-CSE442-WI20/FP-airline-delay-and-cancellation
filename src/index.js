@@ -23,7 +23,7 @@ import {csv} from 'd3';
   
   // LOAD ORIGIN DATA
   function loadAirportData() {
-    d3.csv('airport_list.csv').then(function(data) {
+    d3.csv('airportList.csv').then(function(data) {
       data.forEach(function(d) {
         airportList.push(d.City + ' (' + d.Airport + ')');
       })
