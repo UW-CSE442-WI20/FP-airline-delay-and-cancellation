@@ -12,6 +12,8 @@ import {csv} from 'd3';
 
   function init() {
     const d3 = require('d3');
+    const fuzzysort = require('fuzzysort');
+
     loadAirportData();
       
     // for search bars
@@ -60,7 +62,7 @@ import {csv} from 'd3';
             // Delete old svg before drawing a new one
             d3.selectAll("#line-chart").remove();
             d3.selectAll("#pie-chart").remove();
-            drawDelayedBars(2014, 2015);
+            drawDelayedBars(2018, 2019);
         }
 
         flightList.forEach(function(d) {
@@ -351,29 +353,54 @@ import {csv} from 'd3';
         a.setAttribute("class", "autocomplete-items");
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
+
+        // ----- ORIGINAL CODE
         /*for each item in the array...*/
-        for (i = 0; i < arr.length; i++) {
-          /*check if the item starts with the same letters as the text field value:*/
-          if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-            /*create a DIV element for each matching element:*/
-            b = document.createElement("DIV");
-            /*make the matching letters bold:*/
-            b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-            b.innerHTML += arr[i].substr(val.length);
-            /*insert a input field that will hold the current array item's value:*/
-            b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-            /*execute a function when someone clicks on the item value (DIV element):*/
-            b.addEventListener("click", function(e) {
-                /*insert the value for the autocomplete text field:*/
-                inp.value = this.getElementsByTagName("input")[0].value;
-                loadFlightData();
-                /*close the list of autocompleted values,
-                (or any other open lists of autocompleted values:*/
-                closeAllLists();
-            });
-            a.appendChild(b);
-          }
-        }
+        // for (i = 0; i < arr.length; i++) {
+        //   /*check if the item starts with the same letters as the text field value:*/
+        //   if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+        //     /*create a DIV element for each matching element:*/
+        //     b = document.createElement("DIV");
+        //     /*make the matching letters bold:*/
+        //     b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+        //     b.innerHTML += arr[i].substr(val.length);
+        //     /*insert a input field that will hold the current array item's value:*/
+        //     b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+        //     /*execute a function when someone clicks on the item value (DIV element):*/
+        //     b.addEventListener("click", function(e) {
+        //         /*insert the value for the autocomplete text field:*/
+        //         inp.value = this.getElementsByTagName("input")[0].value;
+        //         loadFlightData();
+        //         /*close the list of autocompleted values,
+        //         (or any other open lists of autocompleted values:*/
+        //         closeAllLists();
+        //     });
+        //     a.appendChild(b);
+        //   }
+        // }
+        // ----- END ORIGINAL CODE
+
+        // ----- FROM HERE, Alicia changed the method for searching to fuzzy
+        // instead of only looking the first few characters
+        // so people can search using the code too
+        const results = fuzzysort.go(val, arr);
+        console.log('begin');
+        console.log(results);
+        console.log('end');
+
+        results.forEach(function(d) {
+          b = document.createElement("DIV");
+          b.innerHTML = d.target;
+          b.innerHTML += "<input type='hidden' value='" + d.target + "'>";
+          b.addEventListener('click', function(e) {
+            inp.value = this.getElementsByTagName("input")[0].value;
+            loadFlightData();
+            closeAllLists();
+          })
+          a.appendChild(b);
+        })
+
+        // ----- TO HERE
     });
     
     /*execute a function presses a key on the keyboard:*/
