@@ -55,13 +55,18 @@ import {csv} from 'd3';
         if (flightList.length == 0) {
           // print message
           alert("there is no available flight data for this itinerary");
+          d3.selectAll("svg").remove();
+        } else {
+            // Delete old svg before drawing a new one
+            d3.selectAll("#line-chart").remove();
+            d3.selectAll("#pie-chart").remove();
+            drawDelayedBars(2014, 2015);
         }
 
         flightList.forEach(function(d) {
           //console.log(d);
         })
-        drawCancel("");
-        drawDelayedBars(2014, 2015);
+
       });
     }
 
@@ -121,6 +126,7 @@ import {csv} from 'd3';
       .tickFormat('');
 
     var svg = d3.select('#chart').append('svg')
+      .attr("id", "line-chart")
       .attr("width", w + margin.left + margin.right)
       .attr("height", h + margin.top + margin.bottom)
       .append('g')
@@ -200,6 +206,8 @@ import {csv} from 'd3';
           return tooltip.style('visibility', 'hidden');
         })
         .on('click', function(d) {
+          // Delete old svg before drawing a new one
+          d3.selectAll("#pie-chart").remove();
           drawCancel(d.airline, mean_data);
         });
 
@@ -239,9 +247,6 @@ import {csv} from 'd3';
     console.log("here");
     // var airlineName = 'SkyWest Airlines Inc. ';
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
-    // Delete old svg before drawing a new one
-    d3.select("svg").remove();
-    d3.selectAll("svg > *").remove();
     if (flightList.length != 0) {
     flightList.forEach(function(d) {
         if (d.Airline == airline) {
@@ -273,9 +278,10 @@ import {csv} from 'd3';
    // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
    var radius = Math.min(width, height) / 2 - margin;
 
-   // append the svg object to the div called 'my_dataviz'
+   // append the svg object to the div called 'cancellation'
    var svg = d3.select("#cancellation")
      .append("svg")
+       .attr("id", "pie-chart")
        .attr("width", width)
        .attr("height", height)
      .append("g")
