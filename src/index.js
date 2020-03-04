@@ -8,7 +8,7 @@ import {csv} from 'd3';
   var airportList = [];
   var flightList = [];
   var delayTimeList = [];
-  var svg;
+  var airlineUnique = [];
 
   function init() {
     const d3 = require('d3');
@@ -61,233 +61,190 @@ import {csv} from 'd3';
           //console.log(d);
         })
         drawCancel("");
-        drawDelayedBars();
+        drawDelayedBars(2014, 2015);
       });
     }
 
   }
+ 
+  // pass in year range in here
+  // minYear (inclusive), maxYear(exclusive)
+  // if slider is only 2015, then minYear: 2015, maxYear: 2016
+  function drawDelayedBars(minYear, maxYear) {
+    var flightYear = [];
+    var airlines = [];
+    // include all the flights after year filter has been set
+    flightList.forEach(function(d) {
+      if (d.Year >= minYear && d.Year < maxYear) {
+        flightYear.push(d);
+        airlines.push(d.Airline);
+      }
+    })
+    // console.log(flightList);
+    // console.log(flightYear);
 
-  function drawDelayedBars() {
-    // MAKE LINE CHART
-    //------------------------1. PREPARATION------------------------//
-    //-----------------------------SVG------------------------------//
-    const width = 960;
-    const height = 500;
-    const margin = 5;
-    const padding = 5;
-    const adj = 30;
-    console.log('halo1');
-    // we are appending SVG first
-    svg = d3.select("div#container").append("svg")
-        .attr("preserveAspectRatio", "xMinYMin meet")
-        .attr("viewBox", "-"
-              + adj + " -"
-              + adj + " "
-              + (width + adj *3) + " "
-              + (height + adj*3))
-        .style("padding", padding)
-        .style("margin", margin)
-        .classed("svg-content", true);
-    console.log('halo2');
-    //-----------------------------DATA-----------------------------//
-    const timeConv = d3.timeParse("%d-%b-%Y");
-    const dataset = d3.csv("data.csv");
+    // get all the airlines
+    airlineUnique = [...new Set(airlines)];
+    // console.log('helo1');
+    // console.log(airlines);
+    // console.log('helo2');
+    // console.log(airlineUnique);
+    // console.log('helo3');
 
-    // console.log('begin');
-    // flightList.forEach(function(d) {
-    //   console.log(d);
-    // })
+    // SET UP SVG
+    var margin = {top: 50, right: 35, bottom: 50, left: 50},
+    w = 630 - (margin.left + margin.right),
+    h = 500 - (margin.top + margin.bottom);
+
+    var x = d3.scaleLinear()
+      .domain([1, 12])
+      .rangeRound([0, w]);
+
+    var y = d3.scaleLinear()
+      .domain([-60, 90])
+      .range([h, 0]);
+
+    var xAxis = d3.axisBottom(x)
+      .ticks(10);
+    
+    var yAxis = d3.axisLeft(y)
+      .ticks(10);
+
+    var xGrid = d3.axisBottom(x)
+      .ticks(5)
+      .tickSize(-h, 0, 0)
+      .tickFormat('');
+
+    var yGrid = d3.axisLeft(y)
+      .ticks(5)
+      .tickSize(-w, 0, 0)
+      .tickFormat('');
+
+    var svg = d3.select('#chart').append('svg')
+      .attr("width", w + margin.left + margin.right)
+      .attr("height", h + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+    svg.append('g')
+      .attr('class', 'x axes')
+      .attr('transform', 'translate(0,' + h + ')')
+      .call(xAxis);
+
+    svg.append('g')
+      .attr('class', 'y axes')
+      .call(yAxis);
+
+    svg.append('g')
+      .attr('class', 'grid')
+      .attr('transform', 'translate(0,' + h + ')')
+      .call(xGrid);
+
+    svg.append('g')
+      .attr('class', 'y-grid')
+      .call(yGrid);
+
+    airlineUnique.forEach(function(d) {
+      // console.log(d);
+      var mean = getMean(d, flightYear);
+      // var temp = {airline: d, mean: mean};
+      plotLine(mean, d);
+    })
     // console.log('end');
 
-    // summarize delay time
-    var delayTimeByMonth = d3.nest()
-      .key(function(d) { return d.Month; })
-      .rollup(function(v) { return 
-        airline:
-        avgDelay: d3.mean(v, function(d) { return d['Departure Delay Time (mins)']; }); 
-      })
-      .object(flightList);
-    console.log('begin');
-    console.log(delayTimeByMonth);
-    console.log('end');
+    function plotLine(mean_data, cirClass) {
+      var line = d3.line()
+        .curve(d3.curveCardinal)
+        .x(function (d) {
+          // console.log(d.month);
+          return x(d.month);
+        })
+        .y(function (d) {
+          // console.log(d.mean);
+          return y(d.mean);
+        });
 
-    // console.log(dataset);
-    // d3.json(delayTimeByMonth, function(data) {
-    dataset.forEach(function(data) {
-      var slices = data.columns.slice(1).map(function(id) {
-        return {
-          id: id,
-          values: data.map(function(d){
-            return {
-              date: timeConv(d.date),
-              measurement: +d[id]
-            };
-          })
-        };
-      });
-      console.log(slices);
-      console.log(dataset);
-    });
-
-    // var temp = convertToCSV(delayTimeByMonth);
-    // console.log(temp);
-    // // temp.forEach(function(d) {
-    // //   console.log(d);
-    // // })
-
-    // var headers = {
-      
-    // }
-
-    exportCSVFile(headers, delayTimeByMonth, "delay-time");
-      
-    //----------------------------SCALES----------------------------//
-    // const xScale = d3.scaleTime().range([0,width]);
-    // const yScale = d3.scaleLinear().rangeRound([height, 0]);
-    // xScale.domain(d3.extent(data, function(d){
-    //     return timeConv(d.date)}));
-    // yScale.domain([(0), d3.max(slices, function(c) {
-    //     return d3.max(c.values, function(d) {
-    //         return d.measurement + 4; });
-    //         })
-    //     ]);
-      
-    //-----------------------------AXES-----------------------------//
-    // const yaxis = d3.axisLeft()
-    //     .ticks((slices[0].values).length)
-    //     .scale(yScale);
-      
-    // const xaxis = d3.axisBottom()
-    //     .ticks(d3.timeDay.every(1))
-    //     .tickFormat(d3.timeFormat('%b %d'))
-    //     .scale(xScale);
-      
-    //----------------------------LINES-----------------------------//
-    // const line = d3.line()
-    //     .x(function(d) { return xScale(d.date); })
-    //     .y(function(d) { return yScale(d.measurement); });
-
-    // let id = 0;
-    // const ids = function () {
-    //     return "line-"+id++;
-    // }  
-
-    //---------------------------TOOLTIP----------------------------//
-
-
-    //-------------------------2. DRAWING---------------------------//
-    //-----------------------------AXES-----------------------------//
-    // svg.append("g")
-    //     .attr("class", "axis")
-    //     .attr("transform", "translate(0," + height + ")")
-    //     .call(xaxis);
-      
-    // svg.append("g")
-    //     .attr("class", "axis")
-    //     .call(yaxis)
-    //     .append("text")
-    //     .attr("transform", "rotate(-90)")
-    //     .attr("dy", ".75em")
-    //     .attr("y", 6)
-    //     .style("text-anchor", "end")
-    //     .text("Frequency");
-      
-    //----------------------------LINES-----------------------------//
-    // const lines = svg.selectAll("lines")
-    //     .data(slices)
-    //     .enter()
-    //     .append("g");
-      
-    //     lines.append("path")
-    //     .attr("class", ids)
-    //     .attr("d", function(d) { return line(d.values); });
-      
-    //     lines.append("text")
-    //     .attr("class","serie_label")
-    //     .datum(function(d) {
-    //         return {
-    //             id: d.id,
-    //             value: d.values[d.values.length - 1]}; })
-    //     .attr("transform", function(d) {
-    //             return "translate(" + (xScale(d.value.date) + 10)  
-    //             + "," + (yScale(d.value.measurement) + 5 )+ ")"; })
-    //     .attr("x", 5)
-    //     .text(function(d) { return ("Serie ") + d.id; });
-
-    //---------------------------POINTS-----------------------------// 
-
-    //---------------------------EVENTS-----------------------------// 
-    
-    // LINE CHART END
+      var tooltip = d3.select('#chart')
+        .append('div')
+        .style('position', 'absolute')
+        .style('z-index', '10')
+        .style('visibility', 'hidden')
+        .text('');
   
+      svg.append('path')
+        .datum(mean_data)
+        .attr('class', 'line')
+        .attr('d', line);
+  
+      svg.selectAll('.dot')
+        .data(mean_data)
+        .enter().append('circle')
+        .attr('class', cirClass)
+        .attr('cy', function(d) {
+          // set y
+          return y(d.mean);
+        })
+        .attr('cx', function(d, i) {
+          // set x
+          return x(d.month);
+        })
+        .attr('r', 4)
+        .style('fill', 'blue')
+        .on('mouseover', function(d) {
+          return tooltip.style('visibility', 'visible').text(d.airline);
+        })
+        .on('mousemove', function() {
+          return tooltip.style('top', (event.pageY - 10)+'px').style('left', (event.pageX+10)+'px');
+        })
+        .on('mouseout', function() {
+          return tooltip.style('visibility', 'hidden');
+        })
+        .on('click', function(d) {
+          drawCancel(d.airline, mean_data);
+        });
+
+    }
   }
 
+  function getMean(airline, flightYear) {
+    var mean = [];
+    for (var i = 0; i < 12; i++) {
+      var count = 0;
+      var total = 0;
+      var j = 0;
 
-  function convertToCSV(objArray) {
-    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
-    var str = '';
-
-    for (var i = 0; i < array.length; i++) {
-        var line = '';
-        for (var index in array[i]) {
-            if (line != '') line += ','
-
-            line += array[i][index];
+      flightYear.forEach(function(d) {
+        j++;
+        if (+d.Month === +(i + 1) && !isNaN(+d['Departure Delay Time (mins)']) && d.Airline === airline) {
+          count++;
+          total += +d['Departure Delay Time (mins)'];
         }
+      })
+    
+      // console.log('helo5');
+      // console.log(total);
+      // console.log(count);
+      // console.log(j);
+      var temp = {airline: airline, month: (i + 1), mean: (total / count)};
 
-        str += line + '\r\n';
-    }
-
-    return str;
-  }
-
-  function exportCSVFile(headers, items, fileTitle) {
-    if (headers) {
-      items.unshift(headers);
-    }
-
-    // Convert Object to JSON
-    var jsonObject = JSON.stringify(items);
-
-    var csv = this.convertToCSV(jsonObject);
-
-    var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
-
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    if (navigator.msSaveBlob) { // IE 10+
-      navigator.msSaveBlob(blob, exportedFilenmae);
-    } else {
-      var link = document.createElement("a");
-      if (link.download !== undefined) { // feature detection
-        // Browsers that support HTML5 download attribute
-        var url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", exportedFilenmae);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      if (!isNaN(temp.mean)) {
+        mean.push(temp);
       }
     }
-  } 
-
-  // pass in array
-  // then get back array with no duplicate values
-  function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+    return mean;
   }
 
   // Cancellation Pie Chart
-  function drawCancel(airline) {
-    //console.log("here");
-    var airlineName = 'SkyWest Airlines Inc. ';
+  function drawCancel(airline, mean) {
+    console.log("here");
+    // var airlineName = 'SkyWest Airlines Inc. ';
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     // Delete old svg before drawing a new one
     d3.select("svg").remove();
     d3.selectAll("svg > *").remove();
     if (flightList.length != 0) {
     flightList.forEach(function(d) {
-        if (d.Airline == airlineName) {
+        if (d.Airline == airline) {
             total++;
             if (d['Flight Cancellation'] == 1) {
                if (d['Cancellation Reason'] == 'Airline')
@@ -303,11 +260,11 @@ import {csv} from 'd3';
     });
 
 
-//   console.log("Airline" + carrier);
-//   console.log("Weather" + weather);
-//   console.log("National" + nationalAir);
-//   console.log("Security" + security);
-//   console.log("Total" + total);
+  console.log("Airline" + carrier);
+  console.log("Weather" + weather);
+  console.log("National" + nationalAir);
+  console.log("Security" + security);
+  console.log("Total" + total);
    // set the dimensions and margins of the graph
    var width = 450,
        height = 450,
