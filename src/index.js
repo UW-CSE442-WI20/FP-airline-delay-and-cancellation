@@ -87,16 +87,9 @@ import {csv} from 'd3';
         airlines.push(d.Airline);
       }
     })
-    // console.log(flightList);
-    // console.log(flightYear);
 
     // get all the airlines
     airlineUnique = [...new Set(airlines)];
-    // console.log('helo1');
-    // console.log(airlines);
-    // console.log('helo2');
-    // console.log(airlineUnique);
-    // console.log('helo3');
 
     // SET UP SVG
     var margin = {top: 50, right: 35, bottom: 50, left: 50},
@@ -153,22 +146,17 @@ import {csv} from 'd3';
       .call(yGrid);
 
     airlineUnique.forEach(function(d) {
-      // console.log(d);
       var mean = getMean(d, flightYear);
-      // var temp = {airline: d, mean: mean};
       plotLine(mean, d);
     })
-    // console.log('end');
 
     function plotLine(mean_data, cirClass) {
       var line = d3.line()
         .curve(d3.curveCardinal)
         .x(function (d) {
-          // console.log(d.month);
           return x(d.month);
         })
         .y(function (d) {
-          // console.log(d.mean);
           return y(d.mean);
         });
 
@@ -189,11 +177,9 @@ import {csv} from 'd3';
         .enter().append('circle')
         .attr('class', cirClass)
         .attr('cy', function(d) {
-          // set y
           return y(d.mean);
         })
         .attr('cx', function(d, i) {
-          // set x
           return x(d.month);
         })
         .attr('r', 4)
@@ -230,13 +216,8 @@ import {csv} from 'd3';
           total += +d['Departure Delay Time (mins)'];
         }
       })
-    
-      // console.log('helo5');
-      // console.log(total);
-      // console.log(count);
-      // console.log(j);
-      var temp = {airline: airline, month: (i + 1), mean: (total / count)};
 
+      var temp = {airline: airline, month: (i + 1), mean: (total / count)};
       if (!isNaN(temp.mean)) {
         mean.push(temp);
       }
@@ -246,8 +227,6 @@ import {csv} from 'd3';
 
   // Cancellation Pie Chart
   function drawCancel(airline, mean) {
-    console.log("here");
-    // var airlineName = 'SkyWest Airlines Inc. ';
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     if (flightList.length != 0) {
     flightList.forEach(function(d) {
@@ -266,12 +245,6 @@ import {csv} from 'd3';
         }
     });
 
-
-  console.log("Airline" + carrier);
-  console.log("Weather" + weather);
-  console.log("National" + nationalAir);
-  console.log("Security" + security);
-  console.log("Total" + total);
    // set the dimensions and margins of the graph
    var width = 450,
        height = 450,
@@ -289,8 +262,6 @@ import {csv} from 'd3';
      .append("g")
        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-   // Create dummy data
-   //var data = {a: 9, b: 20, c:30, d:8, e:12}
    var data = {'Airline' : carrier, 'Weather': weather, 'National Air System': nationalAir, 'Security': security}
 
    // set the color scale
