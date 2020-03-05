@@ -228,13 +228,13 @@ import { csv } from 'd3';
         .on('mouseout', function () {
           return tooltip.style('visibility', 'hidden');
         })
-        // .on('click', function (d) {
-        //   // Delete old svg before drawing a new one
-        //   d3.selectAll("#pie-chart").remove();
-        //   d3.selectAll("#bar-chart").remove();
-        //   drawCancel(d.airline, mean_data);
-        //   drawNumberDelays(d.airline);
-        // });
+        .on('click', function (d) {
+          // Delete old svg before drawing a new one
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d.airline, mean_data);
+          drawNumberDelays(d.airline);
+        });
 
       svg.selectAll("path")
         .on('mouseover', function () {
@@ -257,13 +257,13 @@ import { csv } from 'd3';
             .style("opacity","0.3")
             .style("stroke-width","2");
           })
-        .on('click', function (d) {
-          // Delete old svg before drawing a new one
-          d3.selectAll("#pie-chart").remove();
-          d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline, mean_data);
-          drawNumberDelays(d.airline);
-        });
+        // .on('click', function (d) {
+        //   // Delete old svg before drawing a new one
+        //   d3.selectAll("#pie-chart").remove();
+        //   d3.selectAll("#bar-chart").remove();
+        //   drawCancel(d.airline, mean_data);
+        //   drawNumberDelays(d.airline);
+        // });
     }
   }
 
