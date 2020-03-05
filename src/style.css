@@ -157,14 +157,12 @@ input[type=submit] {
   shape-rendering: crispEdges;
 }
   
-/* axis contour */
 .axis path {
   stroke: #706f6f;
   stroke-width: 0.7;
   shape-rendering: crispEdges;
 }
   
-/* axis text */
 .axis text {
   fill: #2b2929;
   font-family: Georgia;
@@ -175,4 +173,11 @@ input[type=submit] {
   fill: #2b2929;
   font-family: Georgia;
   font-size: 80%;
+}
+
+path.line {
+  fill: none;
+  stroke: steelblue;
+  opacity: 0.3;
+  stroke-width: 2;
 }
