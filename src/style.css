@@ -1,24 +1,85 @@
 * { box-sizing: border-box; }
 body {
-  background-color: #ccc;
-  width: 100%;
-  height: 100%;
+  background-color: #CDEAF8;
   font: 16px Arial;
+  margin: 30px 50px;
+  display: flex;
+  flex-direction: column;
+  font-family: formula-regualar;
 }
 
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-  opacity: .3;
+.main-banner > h1 {
+  width: fit-content;
+  margin: auto;
+  font-size: 40px;
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+}
+
+img {
+  width: 900px;
+  height: 400px;
+}
+
+#searchInput {
+  margin: 0px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+#searchInput > div {
+  margin: auto;
+}
+
+.autocomplete > input {
+  border: 1px solid #000000;
+  background-color: #EEC9BC;
+  width: 100%;
+}
+
+.data {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  margin-top: 30px;
+}
+
+.data > .text {
+  width: fit-content;
+  margin: 0px auto;
+  align-self: flex-start;
 }
 
 .text {
-    margin-top: 30px;
-    font-size: 20px;
-    font-weight: bold;
-    text-transform: uppercase;
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #no-cancel {
     margin: 20px 0px;
@@ -29,20 +90,19 @@ body {
   position: relative;
   display: inline-block;
 }
+
 input {
   border: 1px solid transparent;
   background-color: #f1f1f1;
   padding: 10px;
   font-size: 16px;
 }
-input[type=text] {
-  background-color: #f1f1f1;
-  width: 100%;
-}
+
 input[type=submit] {
   background-color: DodgerBlue;
   color: #fff;
 }
+
 .autocomplete-items {
   position: absolute;
   border: 1px solid #d4d4d4;
@@ -56,16 +116,19 @@ input[type=submit] {
   height: 200px;
   overflow: auto;
 }
+
 .autocomplete-items div {
   padding: 10px;
   cursor: pointer;
   background-color: #fff;
   border-bottom: 1px solid #d4d4d4;
 }
+
 .autocomplete-items div:hover {
   /*when hovering an item:*/
   background-color: #e9e9e9;
 }
+
 .autocomplete-active {
   /*when navigating through the items using the arrow keys:*/
   background-color: DodgerBlue !important;
