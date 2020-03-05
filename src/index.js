@@ -222,7 +222,7 @@ import {csv} from 'd3';
                   .duration("10")
                   .style("stroke","steelblue")
                   .style("opacity","0.3")
-                  .style("stroke-width","1.5px");
+                  .style("stroke-width","2");
           });
 
 
