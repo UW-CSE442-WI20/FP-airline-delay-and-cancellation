@@ -91,7 +91,7 @@ import { csv } from 'd3';
     var flightYear = [];
     var airlines = [];
     // include all the flights after year filter has been set
-    flightFiltered.forEach(function(d) {
+    flightFiltered.forEach(function (d) {
       flightYear.push(d);
       airlines.push(d.Airline);
     })
@@ -235,14 +235,16 @@ import { csv } from 'd3';
         })
         .on('mouseout', function () {
           const selection = d3.select(this)
-          selection
-            .transition()
-            .delay("100")
-            .duration("10")
-            .style("stroke", "steelblue")
-            .style("opacity", "0.3")
-            .style("stroke-width", "1.5px");
-        });
+              selection
+                  .transition()
+                  .delay("100")
+                  .duration("10")
+                  .style("stroke","steelblue")
+                  .style("opacity","0.3")
+                  .style("stroke-width","2");
+          });
+
+
     }
   }
 
@@ -357,7 +359,7 @@ import { csv } from 'd3';
   // draw bar graph
   function drawNumberDelays(airline) {
     var delayedByAirline = [];
-    flightFiltered.forEach(function(d) {
+    flightFiltered.forEach(function (d) {
       // console.log(d.Airline + " " + d["Departure Delay Time (mins)"]);
       if (d.Airline === airline && d["Departure Delay Time (mins)"] > 0) {
         delayedByAirline.push(d);
@@ -372,56 +374,46 @@ import { csv } from 'd3';
       countArr[i] = 0;
     }
 
-    delayedByAirline.forEach(function(d) {
+    delayedByAirline.forEach(function (d) {
       countArr[Math.floor(d["Scheduled Departure Time"] / 100)]++;
     })
     // console.log(countArr);
 
     var countByTime = [];
     for (var i = 0; i < 24; i++) {
-      var temp = {time: i, count: countArr[i]};
+      var temp = { time: i, count: countArr[i] };
       countByTime.push(temp);
     }
     console.log(airline);
     console.log(countByTime);
 
     // set the dimensions and margins of the graph
-    var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    var margin = { top: 20, right: 20, bottom: 30, left: 40 },
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
 
     // set the ranges
     var x = d3.scaleBand()
-          .range([0, width])
-          .padding(0.1);
+      .range([0, width])
+      .padding(0.1);
     var y = d3.scaleLinear()
-          .range([height, 0]);
-          
+      .range([height, 0]);
+
     // append the svg object to the body of the page
     // append a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
     var svg = d3.select("#delays").append("svg")
-    .attr("id", "bar-chart")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", 
-          "translate(" + margin.left + "," + margin.top + ")");
+      .attr("id", "bar-chart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
 
-    
+
     // Scale the range of the data in the domains
-    x.domain(countByTime.map(function(d) { return d.time; }));
-    y.domain([0, d3.max(countByTime, function(d) { return d.count; })]);
-
-    // append the rectangles for the bar chart
-    svg.selectAll(".bar")
-      .data(countByTime)
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) { return x(d.time); })
-      .attr("width", x.bandwidth())
-      .attr("y", function(d) { return y(d.count); })
-      .attr("height", function(d) { return height - y(d.count); });
+    x.domain(countByTime.map(function (d) { return d.time; }));
+    y.domain([0, d3.max(countByTime, function (d) { return d.count; })]);
 
     // add the x Axis
     svg.append("g")
@@ -432,6 +424,23 @@ import { csv } from 'd3';
     svg.append("g")
       .call(d3.axisLeft(y));
 
+    // append the rectangles for the bar chart
+    svg.selectAll(".bar")
+      .data(countByTime)
+      .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function (d) { return x(d.time); })
+      .attr("width", x.bandwidth())
+      .attr("y", function (d) { return y(0); })
+      .attr("height", function (d) { return height - y(0); });
+
+    // Animation
+    svg.selectAll("rect")
+      .transition()
+      .duration(800)
+      .attr("y", function (d) { return y(d.count); })
+      .attr("height", function (d) { return height - y(d.count); })
+      .delay(function (d, i) { console.log(i); return (i * 100) })
   };
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************
