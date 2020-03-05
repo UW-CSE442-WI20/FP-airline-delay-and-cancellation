@@ -9,6 +9,8 @@ import { csv } from 'd3';
   var airlineUnique = []; // get airline
   var destList = []; // only dest airports (after origin is chosen)
   var flightFiltered = []; // one origin, one dest
+  var minMean = 1000000;
+  var maxMean = -1000000;
 
   function init() {
     const d3 = require('d3');
@@ -18,7 +20,6 @@ import { csv } from 'd3';
 
     // for search bars
     autocomplete(document.getElementById("originInput"), airportList);
-    // autocomplete(document.getElementById("destInput"), airportList);
   }
 
   // load origin airport data
@@ -36,31 +37,32 @@ import { csv } from 'd3';
     // console.log('origin ' + ori);
 
     d3.csv(ori + '.csv')
-      .then(function (d) {
-        var dests = [];
-        destList = [];
-        flightList = [];
-        d.forEach(function (e) {
-          dests.push(e.Destination);
-          flightList.push(e);
-        })
-        dests = [...new Set(dests)];
-
-        airportList.forEach(function (e) {
-          dests.forEach(function (f) {
-            var temp = e.substring(e.length - 4, e.length - 1);
-            if (f === temp) {
-              // console.log('here');
-              destList.push(e);
-            }
-          })
-        })
-
-        // console.log('begin');
-        // console.log(destList);
-        // console.log('end');
-        autocomplete(document.getElementById("destInput"), destList);
+    .then(function (d) {
+      console.log('loading');
+      var dests = [];
+      destList = [];
+      flightList = [];
+      d.forEach(function (e) {
+        dests.push(e.Destination);
+        flightList.push(e);
       })
+      dests = [...new Set(dests)];
+
+      airportList.forEach(function (e) {
+        dests.forEach(function (f) {
+          var temp = e.substring(e.length - 4, e.length - 1);
+          if (f === temp) {
+            console.log('here');
+            destList.push(e);
+          }
+        })
+      })
+
+      // console.log('begin');
+      // console.log(destList);
+      // console.log('end');
+      autocomplete(document.getElementById("destInput"), destList);
+    })
   }
 
   function loadDestination() {
@@ -85,6 +87,7 @@ import { csv } from 'd3';
 
   // drawing main line graph
   function drawDelayedBars() {
+    console.log('drawing...');
     var flightYear = [];
     var airlines = [];
     // include all the flights after year filter has been set
@@ -96,6 +99,19 @@ import { csv } from 'd3';
     // get all the airlines
     airlineUnique = [...new Set(airlines)];
 
+    airlineUnique.forEach(function (d) {
+      var mean = getMean(d, flightYear);
+      // minMean = Math.min(minMean, )
+      mean.forEach(function(d) {
+        // console.log(+d.mean);
+        minMean = Math.min(+minMean, +d.mean);
+        maxMean = Math.max(+maxMean, +d.mean);
+      })
+      // console.log("min " + minMean);
+      // console.log("max " + maxMean)
+      //plotLine(mean, d);
+    })
+
     // SET UP SVG
     var margin = { top: 50, right: 35, bottom: 50, left: 50 },
       w = 630 - (margin.left + margin.right),
@@ -106,7 +122,7 @@ import { csv } from 'd3';
       .rangeRound([0, w]);
 
     var y = d3.scaleLinear()
-      .domain([-5, 40])
+      .domain([minMean - 10, maxMean + 10])
       .range([h, 0]);
 
     var xAxis = d3.axisBottom(x)
@@ -227,8 +243,6 @@ import { csv } from 'd3';
             .style("opacity", "0.3")
             .style("stroke-width", "1.5px");
         });
-
-
     }
   }
 
@@ -485,7 +499,9 @@ import { csv } from 'd3';
           } else {
             loadDestination();
           }
-          // loadFlightData();
+
+          // loadOrigin();
+          // loadDestination();
           closeAllLists();
         })
         a.appendChild(b);
