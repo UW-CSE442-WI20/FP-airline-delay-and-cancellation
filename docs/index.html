@@ -1,2 +1,46 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Airline Delay and Cancellation</title><link rel="stylesheet" type="text/css" href="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/style.bf0189b4.css"><script src="https://d3js.org/d3.v5.min.js"></script><script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script></head><body> <section class="main-banner"> <h1>Airline Delay and Cancellation</h1> <div class="image">
- </div> </section> <section> <div> <div class="text">Where from?</div> <form autocomplete="off" action="/action_page.php"> <div class="autocomplete" style="width:300px;"> <input id="originInput" type="text" name="originCity" placeholder="Origin City"> </div> </form> <div class="text">Where to?</div> <form autocomplete="off" action="/action_page.php"> <div class="autocomplete" style="width:300px;"> <input id="destInput" type="text" name="destCity" placeholder="Destination City"> </div> </form> </div> </section> <section> <script src="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.4f92928e.js"></script> <div class="text">Cancellation Reasons</div> <div id="cancellation"></div> </section> </body></html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Airline Delay and Cancellation</title>
+    <link rel="stylesheet" type="text/css" href="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/style.09620453.css">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://rawgit.com/farzher/fuzzysort/master/fuzzysort.js"></script>
+  </head>
+  <body>
+    <section class="main-banner">
+        <h1>Airline Delay and Cancellation</h1>
+        <div class="image">
+<!--            <img src="../img/home-airplane.png" alt="">-->
+        </div>
+    </section>
+    <section>
+    <div>
+      <div class="text">Where from?</div>
+      <form autocomplete="off" action="/action_page.php">
+        <div class="autocomplete" style="width:300px;">
+          <input id="originInput" type="text" name="originCity" placeholder="Origin City">
+        </div>
+      </form>
+      <div class="text">Where to?</div>
+      <form autocomplete="off" action="/action_page.php">
+        <div class="autocomplete" style="width:300px;">
+          <input id="destInput" type="text" name="destCity" placeholder="Destination City">
+        </div>
+      </form>
+    </div>
+    </section>
+    <section></section>
+    <div class="text">Line Graph</div>
+    <div id="chart"></div>
+    <div class="text">Cancellation Reasons</div>
+    <div id="cancellation">
+        <div id="no-cancel" style="display: none;">
+            No cancellation record for this airline.
+        </div>
+    </div>
+    <script src="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.53dc2075.js"></script>
+    
+  </body>
+</html>

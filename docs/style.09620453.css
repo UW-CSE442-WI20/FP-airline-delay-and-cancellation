@@ -1,0 +1,120 @@
+* { box-sizing: border-box; }
+body {
+  background-color: #ccc;
+  width: 100%;
+  height: 100%;
+  font: 16px Arial;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+  opacity: .3;
+}
+
+.text {
+    margin-top: 30px;
+    font-size: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#no-cancel {
+    margin: 20px 0px;
+}
+
+.autocomplete {
+  /*the container must be positioned relative:*/
+  position: relative;
+  display: inline-block;
+}
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
+}
+input[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+}
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover {
+  /*when hovering an item:*/
+  background-color: #e9e9e9;
+}
+.autocomplete-active {
+  /*when navigating through the items using the arrow keys:*/
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+
+/* AXES */
+/* ticks */
+.axis line{
+  stroke: #706f6f;
+  stroke-width: 0.5;
+  shape-rendering: crispEdges;
+}
+  
+/* axis contour */
+.axis path {
+  stroke: #706f6f;
+  stroke-width: 0.7;
+  shape-rendering: crispEdges;
+}
+  
+/* axis text */
+.axis text {
+  fill: #2b2929;
+  font-family: Georgia;
+  font-size: 120%;
+}
+  
+/* LINE CHART */
+  path.line-0 {
+  fill: none;
+  stroke: #ed3700;
+}
+  
+path.line-1 {
+  fill: none;
+  stroke: #2b2929;
+  stroke-dasharray: 2;
+}
+  
+path.line-2 {
+  fill: none;
+  stroke: #9c9c9c;
+  stroke-dasharray: 6;
+}
+  
+.serie_label {
+  fill: #2b2929;
+  font-family: Georgia;
+  font-size: 80%;
+}
+
+
+/*# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/style.09620453.css.map */

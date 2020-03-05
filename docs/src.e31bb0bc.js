@@ -28884,105 +28884,809 @@ Object.keys(_d3Zoom).forEach(function (key) {
     }
   });
 });
-},{"./dist/package.js":"../node_modules/d3/dist/package.js","d3-array":"../node_modules/d3-array/src/index.js","d3-axis":"../node_modules/d3-axis/src/index.js","d3-brush":"../node_modules/d3-brush/src/index.js","d3-chord":"../node_modules/d3-chord/src/index.js","d3-collection":"../node_modules/d3-collection/src/index.js","d3-color":"../node_modules/d3-color/src/index.js","d3-contour":"../node_modules/d3-contour/src/index.js","d3-dispatch":"../node_modules/d3-dispatch/src/index.js","d3-drag":"../node_modules/d3-drag/src/index.js","d3-dsv":"../node_modules/d3-dsv/src/index.js","d3-ease":"../node_modules/d3-ease/src/index.js","d3-fetch":"../node_modules/d3-fetch/src/index.js","d3-force":"../node_modules/d3-force/src/index.js","d3-format":"../node_modules/d3-format/src/index.js","d3-geo":"../node_modules/d3-geo/src/index.js","d3-hierarchy":"../node_modules/d3-hierarchy/src/index.js","d3-interpolate":"../node_modules/d3-interpolate/src/index.js","d3-path":"../node_modules/d3-path/src/index.js","d3-polygon":"../node_modules/d3-polygon/src/index.js","d3-quadtree":"../node_modules/d3-quadtree/src/index.js","d3-random":"../node_modules/d3-random/src/index.js","d3-scale":"../node_modules/d3-scale/src/index.js","d3-scale-chromatic":"../node_modules/d3-scale-chromatic/src/index.js","d3-selection":"../node_modules/d3-selection/src/index.js","d3-shape":"../node_modules/d3-shape/src/index.js","d3-time":"../node_modules/d3-time/src/index.js","d3-time-format":"../node_modules/d3-time-format/src/index.js","d3-timer":"../node_modules/d3-timer/src/index.js","d3-transition":"../node_modules/d3-transition/src/index.js","d3-voronoi":"../node_modules/d3-voronoi/src/index.js","d3-zoom":"../node_modules/d3-zoom/src/index.js"}],"index.js":[function(require,module,exports) {
+},{"./dist/package.js":"../node_modules/d3/dist/package.js","d3-array":"../node_modules/d3-array/src/index.js","d3-axis":"../node_modules/d3-axis/src/index.js","d3-brush":"../node_modules/d3-brush/src/index.js","d3-chord":"../node_modules/d3-chord/src/index.js","d3-collection":"../node_modules/d3-collection/src/index.js","d3-color":"../node_modules/d3-color/src/index.js","d3-contour":"../node_modules/d3-contour/src/index.js","d3-dispatch":"../node_modules/d3-dispatch/src/index.js","d3-drag":"../node_modules/d3-drag/src/index.js","d3-dsv":"../node_modules/d3-dsv/src/index.js","d3-ease":"../node_modules/d3-ease/src/index.js","d3-fetch":"../node_modules/d3-fetch/src/index.js","d3-force":"../node_modules/d3-force/src/index.js","d3-format":"../node_modules/d3-format/src/index.js","d3-geo":"../node_modules/d3-geo/src/index.js","d3-hierarchy":"../node_modules/d3-hierarchy/src/index.js","d3-interpolate":"../node_modules/d3-interpolate/src/index.js","d3-path":"../node_modules/d3-path/src/index.js","d3-polygon":"../node_modules/d3-polygon/src/index.js","d3-quadtree":"../node_modules/d3-quadtree/src/index.js","d3-random":"../node_modules/d3-random/src/index.js","d3-scale":"../node_modules/d3-scale/src/index.js","d3-scale-chromatic":"../node_modules/d3-scale-chromatic/src/index.js","d3-selection":"../node_modules/d3-selection/src/index.js","d3-shape":"../node_modules/d3-shape/src/index.js","d3-time":"../node_modules/d3-time/src/index.js","d3-time-format":"../node_modules/d3-time-format/src/index.js","d3-timer":"../node_modules/d3-timer/src/index.js","d3-transition":"../node_modules/d3-transition/src/index.js","d3-voronoi":"../node_modules/d3-voronoi/src/index.js","d3-zoom":"../node_modules/d3-zoom/src/index.js"}],"../node_modules/fuzzysort/fuzzysort.js":[function(require,module,exports) {
+var define;
+/*
+WHAT: SublimeText-like Fuzzy Search
+
+USAGE:
+  fuzzysort.single('fs', 'Fuzzy Search') // {score: -16}
+  fuzzysort.single('test', 'test') // {score: 0}
+  fuzzysort.single('doesnt exist', 'target') // null
+
+  fuzzysort.go('mr', ['Monitor.cpp', 'MeshRenderer.cpp'])
+  // [{score: -18, target: "MeshRenderer.cpp"}, {score: -6009, target: "Monitor.cpp"}]
+
+  fuzzysort.highlight(fuzzysort.single('fs', 'Fuzzy Search'), '<b>', '</b>')
+  // <b>F</b>uzzy <b>S</b>earch
+*/
+
+// UMD (Universal Module Definition) for fuzzysort
+;(function(root, UMD) {
+  if(typeof define === 'function' && define.amd) define([], UMD)
+  else if(typeof module === 'object' && module.exports) module.exports = UMD()
+  else root.fuzzysort = UMD()
+})(this, function UMD() { function fuzzysortNew(instanceOptions) {
+
+  var fuzzysort = {
+
+    single: function(search, target, options) {
+      if(!search) return null
+      if(!isObj(search)) search = fuzzysort.getPreparedSearch(search)
+
+      if(!target) return null
+      if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+      var allowTypo = options && options.allowTypo!==undefined ? options.allowTypo
+        : instanceOptions && instanceOptions.allowTypo!==undefined ? instanceOptions.allowTypo
+        : true
+      var algorithm = allowTypo ? fuzzysort.algorithm : fuzzysort.algorithmNoTypo
+      return algorithm(search, target, search[0])
+      // var threshold = options && options.threshold || instanceOptions && instanceOptions.threshold || -9007199254740991
+      // var result = algorithm(search, target, search[0])
+      // if(result === null) return null
+      // if(result.score < threshold) return null
+      // return result
+    },
+
+    go: function(search, targets, options) {
+      if(!search) return noResults
+      search = fuzzysort.prepareSearch(search)
+      var searchLowerCode = search[0]
+
+      var threshold = options && options.threshold || instanceOptions && instanceOptions.threshold || -9007199254740991
+      var limit = options && options.limit || instanceOptions && instanceOptions.limit || 9007199254740991
+      var allowTypo = options && options.allowTypo!==undefined ? options.allowTypo
+        : instanceOptions && instanceOptions.allowTypo!==undefined ? instanceOptions.allowTypo
+        : true
+      var algorithm = allowTypo ? fuzzysort.algorithm : fuzzysort.algorithmNoTypo
+      var resultsLen = 0; var limitedCount = 0
+      var targetsLen = targets.length
+
+      // This code is copy/pasted 3 times for performance reasons [options.keys, options.key, no keys]
+
+      // options.keys
+      if(options && options.keys) {
+        var scoreFn = options.scoreFn || defaultScoreFn
+        var keys = options.keys
+        var keysLen = keys.length
+        for(var i = targetsLen - 1; i >= 0; --i) { var obj = targets[i]
+          var objResults = new Array(keysLen)
+          for (var keyI = keysLen - 1; keyI >= 0; --keyI) {
+            var key = keys[keyI]
+            var target = getValue(obj, key)
+            if(!target) { objResults[keyI] = null; continue }
+            if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+            objResults[keyI] = algorithm(search, target, searchLowerCode)
+          }
+          objResults.obj = obj // before scoreFn so scoreFn can use it
+          var score = scoreFn(objResults)
+          if(score === null) continue
+          if(score < threshold) continue
+          objResults.score = score
+          if(resultsLen < limit) { q.add(objResults); ++resultsLen }
+          else {
+            ++limitedCount
+            if(score > q.peek().score) q.replaceTop(objResults)
+          }
+        }
+
+      // options.key
+      } else if(options && options.key) {
+        var key = options.key
+        for(var i = targetsLen - 1; i >= 0; --i) { var obj = targets[i]
+          var target = getValue(obj, key)
+          if(!target) continue
+          if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+          var result = algorithm(search, target, searchLowerCode)
+          if(result === null) continue
+          if(result.score < threshold) continue
+
+          // have to clone result so duplicate targets from different obj can each reference the correct obj
+          result = {target:result.target, _targetLowerCodes:null, _nextBeginningIndexes:null, score:result.score, indexes:result.indexes, obj:obj} // hidden
+
+          if(resultsLen < limit) { q.add(result); ++resultsLen }
+          else {
+            ++limitedCount
+            if(result.score > q.peek().score) q.replaceTop(result)
+          }
+        }
+
+      // no keys
+      } else {
+        for(var i = targetsLen - 1; i >= 0; --i) { var target = targets[i]
+          if(!target) continue
+          if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+          var result = algorithm(search, target, searchLowerCode)
+          if(result === null) continue
+          if(result.score < threshold) continue
+          if(resultsLen < limit) { q.add(result); ++resultsLen }
+          else {
+            ++limitedCount
+            if(result.score > q.peek().score) q.replaceTop(result)
+          }
+        }
+      }
+
+      if(resultsLen === 0) return noResults
+      var results = new Array(resultsLen)
+      for(var i = resultsLen - 1; i >= 0; --i) results[i] = q.poll()
+      results.total = resultsLen + limitedCount
+      return results
+    },
+
+    goAsync: function(search, targets, options) {
+      var canceled = false
+      var p = new Promise(function(resolve, reject) {
+        if(!search) return resolve(noResults)
+        search = fuzzysort.prepareSearch(search)
+        var searchLowerCode = search[0]
+
+        var q = fastpriorityqueue()
+        var iCurrent = targets.length - 1
+        var threshold = options && options.threshold || instanceOptions && instanceOptions.threshold || -9007199254740991
+        var limit = options && options.limit || instanceOptions && instanceOptions.limit || 9007199254740991
+        var allowTypo = options && options.allowTypo!==undefined ? options.allowTypo
+          : instanceOptions && instanceOptions.allowTypo!==undefined ? instanceOptions.allowTypo
+          : true
+        var algorithm = allowTypo ? fuzzysort.algorithm : fuzzysort.algorithmNoTypo
+        var resultsLen = 0; var limitedCount = 0
+        function step() {
+          if(canceled) return reject('canceled')
+
+          var startMs = Date.now()
+
+          // This code is copy/pasted 3 times for performance reasons [options.keys, options.key, no keys]
+
+          // options.keys
+          if(options && options.keys) {
+            var scoreFn = options.scoreFn || defaultScoreFn
+            var keys = options.keys
+            var keysLen = keys.length
+            for(; iCurrent >= 0; --iCurrent) { var obj = targets[iCurrent]
+              var objResults = new Array(keysLen)
+              for (var keyI = keysLen - 1; keyI >= 0; --keyI) {
+                var key = keys[keyI]
+                var target = getValue(obj, key)
+                if(!target) { objResults[keyI] = null; continue }
+                if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+                objResults[keyI] = algorithm(search, target, searchLowerCode)
+              }
+              objResults.obj = obj // before scoreFn so scoreFn can use it
+              var score = scoreFn(objResults)
+              if(score === null) continue
+              if(score < threshold) continue
+              objResults.score = score
+              if(resultsLen < limit) { q.add(objResults); ++resultsLen }
+              else {
+                ++limitedCount
+                if(score > q.peek().score) q.replaceTop(objResults)
+              }
+
+              if(iCurrent%1000/*itemsPerCheck*/ === 0) {
+                if(Date.now() - startMs >= 10/*asyncInterval*/) {
+                  isNode?setImmediate(step):setTimeout(step)
+                  return
+                }
+              }
+            }
+
+          // options.key
+          } else if(options && options.key) {
+            var key = options.key
+            for(; iCurrent >= 0; --iCurrent) { var obj = targets[iCurrent]
+              var target = getValue(obj, key)
+              if(!target) continue
+              if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+              var result = algorithm(search, target, searchLowerCode)
+              if(result === null) continue
+              if(result.score < threshold) continue
+
+              // have to clone result so duplicate targets from different obj can each reference the correct obj
+              result = {target:result.target, _targetLowerCodes:null, _nextBeginningIndexes:null, score:result.score, indexes:result.indexes, obj:obj} // hidden
+
+              if(resultsLen < limit) { q.add(result); ++resultsLen }
+              else {
+                ++limitedCount
+                if(result.score > q.peek().score) q.replaceTop(result)
+              }
+
+              if(iCurrent%1000/*itemsPerCheck*/ === 0) {
+                if(Date.now() - startMs >= 10/*asyncInterval*/) {
+                  isNode?setImmediate(step):setTimeout(step)
+                  return
+                }
+              }
+            }
+
+          // no keys
+          } else {
+            for(; iCurrent >= 0; --iCurrent) { var target = targets[iCurrent]
+              if(!target) continue
+              if(!isObj(target)) target = fuzzysort.getPrepared(target)
+
+              var result = algorithm(search, target, searchLowerCode)
+              if(result === null) continue
+              if(result.score < threshold) continue
+              if(resultsLen < limit) { q.add(result); ++resultsLen }
+              else {
+                ++limitedCount
+                if(result.score > q.peek().score) q.replaceTop(result)
+              }
+
+              if(iCurrent%1000/*itemsPerCheck*/ === 0) {
+                if(Date.now() - startMs >= 10/*asyncInterval*/) {
+                  isNode?setImmediate(step):setTimeout(step)
+                  return
+                }
+              }
+            }
+          }
+
+          if(resultsLen === 0) return resolve(noResults)
+          var results = new Array(resultsLen)
+          for(var i = resultsLen - 1; i >= 0; --i) results[i] = q.poll()
+          results.total = resultsLen + limitedCount
+          resolve(results)
+        }
+
+        isNode?setImmediate(step):step()
+      })
+      p.cancel = function() { canceled = true }
+      return p
+    },
+
+    highlight: function(result, hOpen, hClose) {
+      if(result === null) return null
+      if(hOpen === undefined) hOpen = '<b>'
+      if(hClose === undefined) hClose = '</b>'
+      var highlighted = ''
+      var matchesIndex = 0
+      var opened = false
+      var target = result.target
+      var targetLen = target.length
+      var matchesBest = result.indexes
+      for(var i = 0; i < targetLen; ++i) { var char = target[i]
+        if(matchesBest[matchesIndex] === i) {
+          ++matchesIndex
+          if(!opened) { opened = true
+            highlighted += hOpen
+          }
+
+          if(matchesIndex === matchesBest.length) {
+            highlighted += char + hClose + target.substr(i+1)
+            break
+          }
+        } else {
+          if(opened) { opened = false
+            highlighted += hClose
+          }
+        }
+        highlighted += char
+      }
+
+      return highlighted
+    },
+
+    prepare: function(target) {
+      if(!target) return
+      return {target:target, _targetLowerCodes:fuzzysort.prepareLowerCodes(target), _nextBeginningIndexes:null, score:null, indexes:null, obj:null} // hidden
+    },
+    prepareSlow: function(target) {
+      if(!target) return
+      return {target:target, _targetLowerCodes:fuzzysort.prepareLowerCodes(target), _nextBeginningIndexes:fuzzysort.prepareNextBeginningIndexes(target), score:null, indexes:null, obj:null} // hidden
+    },
+    prepareSearch: function(search) {
+      if(!search) return
+      return fuzzysort.prepareLowerCodes(search)
+    },
+
+
+
+    // Below this point is only internal code
+    // Below this point is only internal code
+    // Below this point is only internal code
+    // Below this point is only internal code
+
+
+
+    getPrepared: function(target) {
+      if(target.length > 999) return fuzzysort.prepare(target) // don't cache huge targets
+      var targetPrepared = preparedCache.get(target)
+      if(targetPrepared !== undefined) return targetPrepared
+      targetPrepared = fuzzysort.prepare(target)
+      preparedCache.set(target, targetPrepared)
+      return targetPrepared
+    },
+    getPreparedSearch: function(search) {
+      if(search.length > 999) return fuzzysort.prepareSearch(search) // don't cache huge searches
+      var searchPrepared = preparedSearchCache.get(search)
+      if(searchPrepared !== undefined) return searchPrepared
+      searchPrepared = fuzzysort.prepareSearch(search)
+      preparedSearchCache.set(search, searchPrepared)
+      return searchPrepared
+    },
+
+    algorithm: function(searchLowerCodes, prepared, searchLowerCode) {
+      var targetLowerCodes = prepared._targetLowerCodes
+      var searchLen = searchLowerCodes.length
+      var targetLen = targetLowerCodes.length
+      var searchI = 0 // where we at
+      var targetI = 0 // where you at
+      var typoSimpleI = 0
+      var matchesSimpleLen = 0
+
+      // very basic fuzzy match; to remove non-matching targets ASAP!
+      // walk through target. find sequential matches.
+      // if all chars aren't found then exit
+      for(;;) {
+        var isMatch = searchLowerCode === targetLowerCodes[targetI]
+        if(isMatch) {
+          matchesSimple[matchesSimpleLen++] = targetI
+          ++searchI; if(searchI === searchLen) break
+          searchLowerCode = searchLowerCodes[typoSimpleI===0?searchI : (typoSimpleI===searchI?searchI+1 : (typoSimpleI===searchI-1?searchI-1 : searchI))]
+        }
+
+        ++targetI; if(targetI >= targetLen) { // Failed to find searchI
+          // Check for typo or exit
+          // we go as far as possible before trying to transpose
+          // then we transpose backwards until we reach the beginning
+          for(;;) {
+            if(searchI <= 1) return null // not allowed to transpose first char
+            if(typoSimpleI === 0) { // we haven't tried to transpose yet
+              --searchI
+              var searchLowerCodeNew = searchLowerCodes[searchI]
+              if(searchLowerCode === searchLowerCodeNew) continue // doesn't make sense to transpose a repeat char
+              typoSimpleI = searchI
+            } else {
+              if(typoSimpleI === 1) return null // reached the end of the line for transposing
+              --typoSimpleI
+              searchI = typoSimpleI
+              searchLowerCode = searchLowerCodes[searchI + 1]
+              var searchLowerCodeNew = searchLowerCodes[searchI]
+              if(searchLowerCode === searchLowerCodeNew) continue // doesn't make sense to transpose a repeat char
+            }
+            matchesSimpleLen = searchI
+            targetI = matchesSimple[matchesSimpleLen - 1] + 1
+            break
+          }
+        }
+      }
+
+      var searchI = 0
+      var typoStrictI = 0
+      var successStrict = false
+      var matchesStrictLen = 0
+
+      var nextBeginningIndexes = prepared._nextBeginningIndexes
+      if(nextBeginningIndexes === null) nextBeginningIndexes = prepared._nextBeginningIndexes = fuzzysort.prepareNextBeginningIndexes(prepared.target)
+      var firstPossibleI = targetI = matchesSimple[0]===0 ? 0 : nextBeginningIndexes[matchesSimple[0]-1]
+
+      // Our target string successfully matched all characters in sequence!
+      // Let's try a more advanced and strict test to improve the score
+      // only count it as a match if it's consecutive or a beginning character!
+      if(targetI !== targetLen) for(;;) {
+        if(targetI >= targetLen) {
+          // We failed to find a good spot for this search char, go back to the previous search char and force it forward
+          if(searchI <= 0) { // We failed to push chars forward for a better match
+            // transpose, starting from the beginning
+            ++typoStrictI; if(typoStrictI > searchLen-2) break
+            if(searchLowerCodes[typoStrictI] === searchLowerCodes[typoStrictI+1]) continue // doesn't make sense to transpose a repeat char
+            targetI = firstPossibleI
+            continue
+          }
+
+          --searchI
+          var lastMatch = matchesStrict[--matchesStrictLen]
+          targetI = nextBeginningIndexes[lastMatch]
+
+        } else {
+          var isMatch = searchLowerCodes[typoStrictI===0?searchI : (typoStrictI===searchI?searchI+1 : (typoStrictI===searchI-1?searchI-1 : searchI))] === targetLowerCodes[targetI]
+          if(isMatch) {
+            matchesStrict[matchesStrictLen++] = targetI
+            ++searchI; if(searchI === searchLen) { successStrict = true; break }
+            ++targetI
+          } else {
+            targetI = nextBeginningIndexes[targetI]
+          }
+        }
+      }
+
+      { // tally up the score & keep track of matches for highlighting later
+        if(successStrict) { var matchesBest = matchesStrict; var matchesBestLen = matchesStrictLen }
+        else { var matchesBest = matchesSimple; var matchesBestLen = matchesSimpleLen }
+        var score = 0
+        var lastTargetI = -1
+        for(var i = 0; i < searchLen; ++i) { var targetI = matchesBest[i]
+          // score only goes down if they're not consecutive
+          if(lastTargetI !== targetI - 1) score -= targetI
+          lastTargetI = targetI
+        }
+        if(!successStrict) {
+          score *= 1000
+          if(typoSimpleI !== 0) score += -20/*typoPenalty*/
+        } else {
+          if(typoStrictI !== 0) score += -20/*typoPenalty*/
+        }
+        score -= targetLen - searchLen
+        prepared.score = score
+        prepared.indexes = new Array(matchesBestLen); for(var i = matchesBestLen - 1; i >= 0; --i) prepared.indexes[i] = matchesBest[i]
+
+        return prepared
+      }
+    },
+
+    algorithmNoTypo: function(searchLowerCodes, prepared, searchLowerCode) {
+      var targetLowerCodes = prepared._targetLowerCodes
+      var searchLen = searchLowerCodes.length
+      var targetLen = targetLowerCodes.length
+      var searchI = 0 // where we at
+      var targetI = 0 // where you at
+      var matchesSimpleLen = 0
+
+      // very basic fuzzy match; to remove non-matching targets ASAP!
+      // walk through target. find sequential matches.
+      // if all chars aren't found then exit
+      for(;;) {
+        var isMatch = searchLowerCode === targetLowerCodes[targetI]
+        if(isMatch) {
+          matchesSimple[matchesSimpleLen++] = targetI
+          ++searchI; if(searchI === searchLen) break
+          searchLowerCode = searchLowerCodes[searchI]
+        }
+        ++targetI; if(targetI >= targetLen) return null // Failed to find searchI
+      }
+
+      var searchI = 0
+      var successStrict = false
+      var matchesStrictLen = 0
+
+      var nextBeginningIndexes = prepared._nextBeginningIndexes
+      if(nextBeginningIndexes === null) nextBeginningIndexes = prepared._nextBeginningIndexes = fuzzysort.prepareNextBeginningIndexes(prepared.target)
+      var firstPossibleI = targetI = matchesSimple[0]===0 ? 0 : nextBeginningIndexes[matchesSimple[0]-1]
+
+      // Our target string successfully matched all characters in sequence!
+      // Let's try a more advanced and strict test to improve the score
+      // only count it as a match if it's consecutive or a beginning character!
+      if(targetI !== targetLen) for(;;) {
+        if(targetI >= targetLen) {
+          // We failed to find a good spot for this search char, go back to the previous search char and force it forward
+          if(searchI <= 0) break // We failed to push chars forward for a better match
+
+          --searchI
+          var lastMatch = matchesStrict[--matchesStrictLen]
+          targetI = nextBeginningIndexes[lastMatch]
+
+        } else {
+          var isMatch = searchLowerCodes[searchI] === targetLowerCodes[targetI]
+          if(isMatch) {
+            matchesStrict[matchesStrictLen++] = targetI
+            ++searchI; if(searchI === searchLen) { successStrict = true; break }
+            ++targetI
+          } else {
+            targetI = nextBeginningIndexes[targetI]
+          }
+        }
+      }
+
+      { // tally up the score & keep track of matches for highlighting later
+        if(successStrict) { var matchesBest = matchesStrict; var matchesBestLen = matchesStrictLen }
+        else { var matchesBest = matchesSimple; var matchesBestLen = matchesSimpleLen }
+        var score = 0
+        var lastTargetI = -1
+        for(var i = 0; i < searchLen; ++i) { var targetI = matchesBest[i]
+          // score only goes down if they're not consecutive
+          if(lastTargetI !== targetI - 1) score -= targetI
+          lastTargetI = targetI
+        }
+        if(!successStrict) score *= 1000
+        score -= targetLen - searchLen
+        prepared.score = score
+        prepared.indexes = new Array(matchesBestLen); for(var i = matchesBestLen - 1; i >= 0; --i) prepared.indexes[i] = matchesBest[i]
+
+        return prepared
+      }
+    },
+
+    prepareLowerCodes: function(str) {
+      var strLen = str.length
+      var lowerCodes = [] // new Array(strLen)    sparse array is too slow
+      var lower = str.toLowerCase()
+      for(var i = 0; i < strLen; ++i) lowerCodes[i] = lower.charCodeAt(i)
+      return lowerCodes
+    },
+    prepareBeginningIndexes: function(target) {
+      var targetLen = target.length
+      var beginningIndexes = []; var beginningIndexesLen = 0
+      var wasUpper = false
+      var wasAlphanum = false
+      for(var i = 0; i < targetLen; ++i) {
+        var targetCode = target.charCodeAt(i)
+        var isUpper = targetCode>=65&&targetCode<=90
+        var isAlphanum = isUpper || targetCode>=97&&targetCode<=122 || targetCode>=48&&targetCode<=57
+        var isBeginning = isUpper && !wasUpper || !wasAlphanum || !isAlphanum
+        wasUpper = isUpper
+        wasAlphanum = isAlphanum
+        if(isBeginning) beginningIndexes[beginningIndexesLen++] = i
+      }
+      return beginningIndexes
+    },
+    prepareNextBeginningIndexes: function(target) {
+      var targetLen = target.length
+      var beginningIndexes = fuzzysort.prepareBeginningIndexes(target)
+      var nextBeginningIndexes = [] // new Array(targetLen)     sparse array is too slow
+      var lastIsBeginning = beginningIndexes[0]
+      var lastIsBeginningI = 0
+      for(var i = 0; i < targetLen; ++i) {
+        if(lastIsBeginning > i) {
+          nextBeginningIndexes[i] = lastIsBeginning
+        } else {
+          lastIsBeginning = beginningIndexes[++lastIsBeginningI]
+          nextBeginningIndexes[i] = lastIsBeginning===undefined ? targetLen : lastIsBeginning
+        }
+      }
+      return nextBeginningIndexes
+    },
+
+    cleanup: cleanup,
+    new: fuzzysortNew,
+  }
+  return fuzzysort
+} // fuzzysortNew
+
+// This stuff is outside fuzzysortNew, because it's shared with instances of fuzzysort.new()
+var isNode = typeof require !== 'undefined' && typeof window === 'undefined'
+// var MAX_INT = Number.MAX_SAFE_INTEGER
+// var MIN_INT = Number.MIN_VALUE
+var preparedCache = new Map()
+var preparedSearchCache = new Map()
+var noResults = []; noResults.total = 0
+var matchesSimple = []; var matchesStrict = []
+function cleanup() { preparedCache.clear(); preparedSearchCache.clear(); matchesSimple = []; matchesStrict = [] }
+function defaultScoreFn(a) {
+  var max = -9007199254740991
+  for (var i = a.length - 1; i >= 0; --i) {
+    var result = a[i]; if(result === null) continue
+    var score = result.score
+    if(score > max) max = score
+  }
+  if(max === -9007199254740991) return null
+  return max
+}
+
+// prop = 'key'              2.5ms optimized for this case, seems to be about as fast as direct obj[prop]
+// prop = 'key1.key2'        10ms
+// prop = ['key1', 'key2']   27ms
+function getValue(obj, prop) {
+  var tmp = obj[prop]; if(tmp !== undefined) return tmp
+  var segs = prop
+  if(!Array.isArray(prop)) segs = prop.split('.')
+  var len = segs.length
+  var i = -1
+  while (obj && (++i < len)) obj = obj[segs[i]]
+  return obj
+}
+
+function isObj(x) { return typeof x === 'object' } // faster as a function
+
+// Hacked version of https://github.com/lemire/FastPriorityQueue.js
+var fastpriorityqueue=function(){var r=[],o=0,e={};function n(){for(var e=0,n=r[e],c=1;c<o;){var f=c+1;e=c,f<o&&r[f].score<r[c].score&&(e=f),r[e-1>>1]=r[e],c=1+(e<<1)}for(var a=e-1>>1;e>0&&n.score<r[a].score;a=(e=a)-1>>1)r[e]=r[a];r[e]=n}return e.add=function(e){var n=o;r[o++]=e;for(var c=n-1>>1;n>0&&e.score<r[c].score;c=(n=c)-1>>1)r[n]=r[c];r[n]=e},e.poll=function(){if(0!==o){var e=r[0];return r[0]=r[--o],n(),e}},e.peek=function(e){if(0!==o)return r[0]},e.replaceTop=function(o){r[0]=o,n()},e};
+var q = fastpriorityqueue() // reuse this, except for async, it needs to make its own
+
+return fuzzysortNew()
+}) // UMD
+
+// TODO: (performance) wasm version!?
+
+// TODO: (performance) layout memory in an optimal way to go fast by avoiding cache misses
+
+// TODO: (performance) preparedCache is a memory leak
+
+// TODO: (like sublime) backslash === forwardslash
+
+// TODO: (performance) i have no idea how well optizmied the allowing typos algorithm is
+
+},{}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _d = require("d3");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 "use strict";
 
 (function () {
   window.addEventListener('load', init);
-  var mainData = [];
-  var airportList = [];
-  var flightList = [];
-  var svg;
+  var airportList = []; // initial airport list (everything)
+
+  var flightList = []; // only one origin, multiple dests
+
+  var airlineUnique = []; // get airline
+
+  var destList = []; // only dest airports (after origin is chosen)
+
+  var flightFiltered = []; // one origin, one dest
 
   function init() {
-    var d3 = require('d3'); // initialize svg
+    var d3 = require('d3');
 
+    var fuzzysort = require('fuzzysort');
 
-    var margin = {
-      top: 40,
-      right: 20,
-      bottom: 60,
-      left: 130
-    };
-    var width = 1100 - margin.left - margin.right;
-    var height = 700 - margin.top - margin.bottom;
-    svg = d3.select('body').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
     loadAirportData(); // for search bars
 
-    autocomplete(document.getElementById("originInput"), airportList);
-    autocomplete(document.getElementById("destInput"), airportList);
-  } // LOAD ORIGIN DATA
+    autocomplete(document.getElementById("originInput"), airportList); // autocomplete(document.getElementById("destInput"), airportList);
+  } // load origin airport data
 
 
   function loadAirportData() {
-    d3.csv('airport_list.csv').then(function (data) {
+    d3.csv('airportList.csv').then(function (data) {
       data.forEach(function (d) {
         airportList.push(d.City + ' (' + d.Airport + ')');
       });
     });
-  } // GET ORIGIN AND DESTINATION INPUT
-  // and then load the flight data by origin
-  // once the origin has been chosen
+  }
 
-
-  function loadFlightData() {
+  function loadOrigin() {
     var origin = document.getElementById('originInput').value;
-    var dest = document.getElementById('destInput').value;
-    origin = origin.substring(origin.length - 4, origin.length - 1);
-    dest = dest.substring(dest.length - 4, dest.length - 1);
-    console.log("origin " + origin + ", destination " + dest);
+    var ori = origin.substring(origin.length - 4, origin.length - 1); // console.log('origin ' + ori);
 
-    if (dest) {
-      d3.csv(origin + '.csv').then(function (data) {
-        flightList = []; //console.log(data[0].Destination);
-        //console.log("dest: " + dest);
+    d3.csv(ori + '.csv').then(function (d) {
+      var dests = [];
+      destList = [];
+      flightList = [];
+      d.forEach(function (e) {
+        dests.push(e.Destination);
+        flightList.push(e);
+      });
+      dests = _toConsumableArray(new Set(dests));
+      airportList.forEach(function (e) {
+        dests.forEach(function (f) {
+          var temp = e.substring(e.length - 4, e.length - 1);
 
-        data.forEach(function (d) {
-          if (d.Destination == dest) {
-            //console.log('inside if');
-            flightList.push(d);
+          if (f === temp) {
+            // console.log('here');
+            destList.push(e);
           }
         });
+      }); // console.log('begin');
+      // console.log(destList);
+      // console.log('end');
 
-        if (flightList.length == 0) {
-          // print message
-          // "there is no available flight data for this itinerary"
-          console.log("no flight");
-        }
+      autocomplete(document.getElementById("destInput"), destList);
+    });
+  }
 
-        flightList.forEach(function (d) {//console.log(d);
-        });
-        drawCancel("");
+  function loadDestination() {
+    var dest = document.getElementById('destInput').value;
+    dest = dest.substring(dest.length - 4, dest.length - 1); // console.log(dest);
+    // console.log(flightList[0]);
+
+    flightFiltered = [];
+    flightList.forEach(function (d) {
+      if (d.Destination === dest) {
+        flightFiltered.push(d);
+      }
+    }); // Delete old svg before drawing a new one
+
+    d3.selectAll("#line-chart").remove();
+    d3.selectAll("#pie-chart").remove();
+    drawDelayedBars();
+  } // drawing main line graph
+
+
+  function drawDelayedBars() {
+    var flightYear = [];
+    var airlines = []; // include all the flights after year filter has been set
+
+    flightList.forEach(function (d) {
+      flightYear.push(d);
+      airlines.push(d.Airline);
+    }); // get all the airlines
+
+    airlineUnique = _toConsumableArray(new Set(airlines)); // SET UP SVG
+
+    var margin = {
+      top: 50,
+      right: 35,
+      bottom: 50,
+      left: 50
+    },
+        w = 630 - (margin.left + margin.right),
+        h = 500 - (margin.top + margin.bottom);
+    var x = d3.scaleLinear().domain([1, 12]).rangeRound([0, w]);
+    var y = d3.scaleLinear().domain([-60, 90]).range([h, 0]);
+    var xAxis = d3.axisBottom(x).ticks(10);
+    var yAxis = d3.axisLeft(y).ticks(10);
+    var xGrid = d3.axisBottom(x).ticks(5).tickSize(-h, 0, 0).tickFormat('');
+    var yGrid = d3.axisLeft(y).ticks(5).tickSize(-w, 0, 0).tickFormat('');
+    var svg = d3.select('#chart').append('svg').attr("id", "line-chart").attr("width", w + margin.left + margin.right).attr("height", h + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    svg.append('g').attr('class', 'x axes').attr('transform', 'translate(0,' + h + ')').call(xAxis);
+    svg.append('g').attr('class', 'y axes').call(yAxis);
+    svg.append('g').attr('class', 'grid').attr('transform', 'translate(0,' + h + ')').call(xGrid);
+    svg.append('g').attr('class', 'y-grid').call(yGrid);
+    airlineUnique.forEach(function (d) {
+      var mean = getMean(d, flightYear);
+      plotLine(mean, d);
+    });
+
+    function plotLine(mean_data, cirClass) {
+      var line = d3.line().curve(d3.curveCardinal).x(function (d) {
+        return x(d.month);
+      }).y(function (d) {
+        return y(d.mean);
+      });
+      var tooltip = d3.select('#chart').append('div').style('position', 'absolute').style('z-index', '10').style('visibility', 'hidden').text('');
+      svg.append('path').datum(mean_data).attr('class', 'line').attr('d', line);
+      svg.selectAll('.dot').data(mean_data).enter().append('circle').attr('class', cirClass).attr('cy', function (d) {
+        return y(d.mean);
+      }).attr('cx', function (d, i) {
+        return x(d.month);
+      }).attr('r', 4).style('fill', 'blue').on('mouseover', function (d) {
+        return tooltip.style('visibility', 'visible').text(d.airline);
+      }).on('mousemove', function () {
+        return tooltip.style('top', event.pageY - 10 + 'px').style('left', event.pageX + 10 + 'px');
+      }).on('mouseout', function () {
+        return tooltip.style('visibility', 'hidden');
+      }).on('click', function (d) {
+        // Delete old svg before drawing a new one
+        d3.selectAll("#pie-chart").remove();
+        drawCancel(d.airline, mean_data);
       });
     }
-  } // pass in array
-  // then get back array with no duplicate values
+  }
 
+  function getMean(airline, flightYear) {
+    var mean = [];
 
-  function onlyUnique(value, index, self) {
-    return self.indexOf(value) === index;
+    for (var i = 0; i < 12; i++) {
+      var count = 0;
+      var total = 0;
+      var j = 0;
+      flightYear.forEach(function (d) {
+        j++;
+
+        if (+d.Month === +(i + 1) && !isNaN(+d['Departure Delay Time (mins)']) && d.Airline === airline) {
+          count++;
+          total += +d['Departure Delay Time (mins)'];
+        }
+      });
+      var temp = {
+        airline: airline,
+        month: i + 1,
+        mean: total / count
+      };
+
+      if (!isNaN(temp.mean)) {
+        mean.push(temp);
+      }
+    }
+
+    return mean;
   } // Cancellation Pie Chart
 
 
-  function drawCancel(airline) {
-    //console.log("here");
-    var airlineName = 'SkyWest Airlines Inc. ';
+  function drawCancel(airline, mean) {
     var total = 0,
         carrier = 0,
         weather = 0,
         nationalAir = 0,
-        security = 0; // Delete old svg before drawing a new one
-
-    d3.select("svg").remove();
-    d3.selectAll("svg > *").remove();
+        security = 0;
+    var x = document.getElementById("no-cancel");
 
     if (flightList.length != 0) {
       flightList.forEach(function (d) {
-        if (d.Airline == airlineName) {
+        if (d.Airline == airline) {
           total++;
 
           if (d['Flight Cancellation'] == 1) {
@@ -28992,22 +29696,16 @@ var _d = require("d3");
             if (d['Cancellation Reason'] == 'Security') security++;
           }
         }
-      }); //   console.log("Airline" + carrier);
-      //   console.log("Weather" + weather);
-      //   console.log("National" + nationalAir);
-      //   console.log("Security" + security);
-      //   console.log("Total" + total);
-      // set the dimensions and margins of the graph
+      });
+      var totalCan = carrier + weather + nationalAir + security; // set the dimensions and margins of the graph
 
       var width = 450,
           height = 450,
           margin = 40; // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 
-      var radius = Math.min(width, height) / 2 - margin; // append the svg object to the div called 'my_dataviz'
+      var radius = Math.min(width, height) / 2 - margin; // append the svg object to the div called 'cancellation'
 
-      var svg = d3.select("#cancellation").append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"); // Create dummy data
-      //var data = {a: 9, b: 20, c:30, d:8, e:12}
-
+      var svg = d3.select("#cancellation").append("svg").attr("id", "pie-chart").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
       var data = {
         'Airline': carrier,
         'Weather': weather,
@@ -29015,7 +29713,7 @@ var _d = require("d3");
         'Security': security
       }; // set the color scale
 
-      var color = d3.scaleOrdinal().domain(data).range(d3.schemeSet2); // Compute the position of each group on the pie:
+      var color = d3.scaleOrdinal().domain(data).range(d3.schemeTableau10); // Compute the position of each group on the pie:
 
       var pie = d3.pie().value(function (d) {
         return d.value;
@@ -29025,16 +29723,20 @@ var _d = require("d3");
 
       var arcGenerator = d3.arc().innerRadius(radius - radius / 3).outerRadius(radius); // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
 
-      svg.selectAll('mySlices').data(data_ready).enter().append('path').attr('d', arcGenerator).attr('fill', function (d) {
-        return color(d.data.key);
-      }).attr("stroke", "black").style("stroke-width", "2px").style("opacity", 0.7); // Now add the annotation. Use the centroid method to get the best coordinates
+      if (totalCan != 0) {
+        x.style.display = "none";
+        svg.selectAll('mySlices').data(data_ready).enter().append('path').attr('d', arcGenerator).attr('fill', function (d) {
+          return color(d.data.key);
+        }).attr("stroke", "black").style("stroke-width", "2px").style("opacity", 0.7); // Now add the annotation. Use the centroid method to get the best coordinates
 
-      svg.selectAll('mySlices').data(data_ready).enter().append('text').text(function (d) {
-        if (d.data.value != 0) return d.data.key;
-      }).attr("transform", function (d) {
-        return "translate(" + arcGenerator.centroid(d) + ")";
-      }).style("text-anchor", "middle").style("font-size", 17);
-    } else {//document.write("no flight");
+        svg.selectAll('mySlices').data(data_ready).enter().append('text').text(function (d) {
+          if (d.data.value != 0) return d.data.key;
+        }).attr("transform", function (d) {
+          return "translate(" + arcGenerator.centroid(d) + ")";
+        }).style("text-anchor", "middle").style("font-size", 17);
+      } else {
+        x.style.display = "block";
+      }
     }
   } // AUTOCOMPLETE SEARCH FIELD ***********************************************
 
@@ -29066,35 +29768,58 @@ var _d = require("d3");
       a.setAttribute("class", "autocomplete-items");
       /*append the DIV element as a child of the autocomplete container:*/
 
-      this.parentNode.appendChild(a);
+      this.parentNode.appendChild(a); // ----- ORIGINAL CODE
+
       /*for each item in the array...*/
+      // for (i = 0; i < arr.length; i++) {
+      //   /*check if the item starts with the same letters as the text field value:*/
+      //   if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+      //     /*create a DIV element for each matching element:*/
+      //     b = document.createElement("DIV");
+      //     /*make the matching letters bold:*/
+      //     b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+      //     b.innerHTML += arr[i].substr(val.length);
+      //     /*insert a input field that will hold the current array item's value:*/
+      //     b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+      //     /*execute a function when someone clicks on the item value (DIV element):*/
+      //     b.addEventListener("click", function(e) {
+      //         /*insert the value for the autocomplete text field:*/
+      //         inp.value = this.getElementsByTagName("input")[0].value;
+      //         loadFlightData();
+      //         /*close the list of autocompleted values,
+      //         (or any other open lists of autocompleted values:*/
+      //         closeAllLists();
+      //     });
+      //     a.appendChild(b);
+      //   }
+      // }
+      // ----- END ORIGINAL CODE
+      // ----- FROM HERE, Alicia changed the method for searching to fuzzy
+      // instead of only looking the first few characters
+      // so people can search using the code too
 
-      for (i = 0; i < arr.length; i++) {
-        /*check if the item starts with the same letters as the text field value:*/
-        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-          /*create a DIV element for each matching element:*/
-          b = document.createElement("DIV");
-          /*make the matching letters bold:*/
+      var results = fuzzysort.go(val, arr); // console.log('begin');
+      // console.log(results);
+      // console.log('end');
 
-          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-          b.innerHTML += arr[i].substr(val.length);
-          /*insert a input field that will hold the current array item's value:*/
+      results.forEach(function (d) {
+        b = document.createElement("DIV");
+        b.innerHTML = d.target;
+        b.innerHTML += "<input type='hidden' value='" + d.target + "'>";
+        b.addEventListener('click', function (e) {
+          inp.value = this.getElementsByTagName("input")[0].value;
 
-          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-          /*execute a function when someone clicks on the item value (DIV element):*/
+          if (inp === document.getElementById("originInput")) {
+            loadOrigin();
+          } else {
+            loadDestination();
+          } // loadFlightData();
 
-          b.addEventListener("click", function (e) {
-            /*insert the value for the autocomplete text field:*/
-            inp.value = this.getElementsByTagName("input")[0].value;
-            loadFlightData();
-            /*close the list of autocompleted values,
-            (or any other open lists of autocompleted values:*/
 
-            closeAllLists();
-          });
-          a.appendChild(b);
-        }
-      }
+          closeAllLists();
+        });
+        a.appendChild(b);
+      }); // ----- TO HERE
     });
     /*execute a function presses a key on the keyboard:*/
 
@@ -29169,7 +29894,7 @@ var _d = require("d3");
   } // END AUTOCOMPLETE SEARCH FIELD *******************************************
 
 })();
-},{"d3":"../node_modules/d3/index.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"d3":"../node_modules/d3/index.js","fuzzysort":"../node_modules/fuzzysort/fuzzysort.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -29197,7 +29922,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54419" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52969" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
