@@ -22,6 +22,18 @@ import { csv } from 'd3';
     autocomplete(document.getElementById("originInput"), airportList);
   }
 
+  function showData() {
+    document.querySelectorAll(".data").forEach(function(element) {
+      element.classList.remove("hidden")
+    });
+  }
+
+  function hideData() {
+    document.querySelectorAll(".data").forEach(function(element) {
+      element.classList.add("hidden")
+    });
+  }
+
   // load origin airport data
   function loadAirportData() {
     d3.csv('airportList.csv').then(function (data) {
@@ -38,7 +50,7 @@ import { csv } from 'd3';
 
     d3.csv(ori + '.csv')
     .then(function (d) {
-      console.log('loading');
+      // console.log('loading');
       var dests = [];
       destList = [];
       flightList = [];
@@ -52,7 +64,7 @@ import { csv } from 'd3';
         dests.forEach(function (f) {
           var temp = e.substring(e.length - 4, e.length - 1);
           if (f === temp) {
-            console.log('here');
+            // console.log('here');
             destList.push(e);
           }
         })
@@ -66,6 +78,8 @@ import { csv } from 'd3';
   }
 
   function loadDestination() {
+    showData();
+
     var dest = document.getElementById('destInput').value;
     dest = dest.substring(dest.length - 4, dest.length - 1);
     // console.log(dest);
@@ -87,7 +101,7 @@ import { csv } from 'd3';
 
   // drawing main line graph
   function drawDelayedBars() {
-    console.log('drawing...');
+    // console.log('drawing...');
     var flightYear = [];
     var airlines = [];
     // include all the flights after year filter has been set
@@ -214,13 +228,13 @@ import { csv } from 'd3';
         .on('mouseout', function () {
           return tooltip.style('visibility', 'hidden');
         })
-        .on('click', function (d) {
-          // Delete old svg before drawing a new one
-          d3.selectAll("#pie-chart").remove();
-          d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline, mean_data);
-          drawNumberDelays(d.airline);
-        });
+        // .on('click', function (d) {
+        //   // Delete old svg before drawing a new one
+        //   d3.selectAll("#pie-chart").remove();
+        //   d3.selectAll("#bar-chart").remove();
+        //   drawCancel(d.airline, mean_data);
+        //   drawNumberDelays(d.airline);
+        // });
 
       svg.selectAll("path")
         .on('mouseover', function () {
@@ -235,16 +249,21 @@ import { csv } from 'd3';
         })
         .on('mouseout', function () {
           const selection = d3.select(this)
-              selection
-                  .transition()
-                  .delay("100")
-                  .duration("10")
-                  .style("stroke","steelblue")
-                  .style("opacity","0.3")
-                  .style("stroke-width","2");
-          });
-
-
+          selection
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("stroke","steelblue")
+            .style("opacity","0.3")
+            .style("stroke-width","2");
+          })
+        .on('click', function (d) {
+          // Delete old svg before drawing a new one
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d.airline, mean_data);
+          drawNumberDelays(d.airline);
+        });
     }
   }
 
@@ -360,14 +379,10 @@ import { csv } from 'd3';
   function drawNumberDelays(airline) {
     var delayedByAirline = [];
     flightFiltered.forEach(function (d) {
-      // console.log(d.Airline + " " + d["Departure Delay Time (mins)"]);
       if (d.Airline === airline && d["Departure Delay Time (mins)"] > 0) {
         delayedByAirline.push(d);
       }
     })
-    // console.log(delayedByAirline[0]);
-    // console.log('middle');
-    // console.log(delayedByAirline[0]);
 
     var countArr = new Array(24);
     for (var i = 0; i < 24; i++) {
@@ -377,15 +392,14 @@ import { csv } from 'd3';
     delayedByAirline.forEach(function (d) {
       countArr[Math.floor(d["Scheduled Departure Time"] / 100)]++;
     })
-    // console.log(countArr);
 
     var countByTime = [];
     for (var i = 0; i < 24; i++) {
       var temp = { time: i, count: countArr[i] };
       countByTime.push(temp);
     }
-    console.log(airline);
-    console.log(countByTime);
+    // console.log(airline);
+    // console.log(countByTime);
 
     // set the dimensions and margins of the graph
     var margin = { top: 20, right: 20, bottom: 30, left: 40 },
@@ -405,7 +419,7 @@ import { csv } from 'd3';
     var svg = d3.select("#delays").append("svg")
       .attr("id", "bar-chart")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("height", height + margin.top + margin.bottom + 10)
       .append("g")
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
@@ -413,34 +427,77 @@ import { csv } from 'd3';
 
     // Scale the range of the data in the domains
     x.domain(countByTime.map(function (d) { return d.time; }));
-    y.domain([0, d3.max(countByTime, function (d) { return d.count; })]);
+    y.domain([0, d3.max(countByTime, function (d) { return d.count + 10; })]);
 
     // add the x Axis
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x));
+    // text label for the x axis
+    svg.append("text")
+      .attr("transform",
+        "translate(" + (width / 2) + " ," +
+        (height + margin.top + 20) + ")")
+      .style("text-anchor", "middle")
+      .text("Hour")
 
     // add the y Axis
     svg.append("g")
       .call(d3.axisLeft(y));
 
-    // append the rectangles for the bar chart
+    // text label for the y axis
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Number of Delayed Flights");
+
+    var greyColor = "#898989";
+    var barColor = "#BB998C";
+    var highlightColor = "#EEC9BC";
+
     svg.selectAll(".bar")
       .data(countByTime)
       .enter().append("rect")
       .attr("class", "bar")
-      .attr("x", function (d) { return x(d.time); })
+      .style("display", d => { return d.count === 0 ? "none" : null; })
+      .style("fill", d => {
+        return d.count === d3.max(countByTime, d => { return d.count; })
+          ? highlightColor : barColor
+      })
+      .attr("x", d => { return x(d.time); })
       .attr("width", x.bandwidth())
-      .attr("y", function (d) { return y(0); })
-      .attr("height", function (d) { return height - y(0); });
-
-    // Animation
-    svg.selectAll("rect")
+      .attr("y", d => { return height; })
+      .attr("height", 0)
       .transition()
-      .duration(800)
-      .attr("y", function (d) { return y(d.count); })
-      .attr("height", function (d) { return height - y(d.count); })
-      .delay(function (d, i) { console.log(i); return (i * 100) })
+      .duration(750)
+      .delay(function (d, i) {
+        return i * 150;
+      })
+      .attr("y", d => { return y(d.count); })
+      .attr("height", d => { return height - y(d.count); });
+
+    svg.selectAll(".label")
+      .data(countByTime)
+      .enter()
+      .append("text")
+      .attr("class", "label")
+      .style("display", d => { return d.count === 0 ? "none" : null; })
+      .attr("x", (d => { return x(d.time) + (x.bandwidth() / 2) - 10; }))
+      .style("fill", d => {
+        return d.count === d3.max(countByTime, d => { return d.count; })
+          ? highlightColor : greyColor
+      })
+      .attr("y", d => { return height; })
+      .attr("height", 0)
+      .transition()
+      .duration(750)
+      .delay((d, i) => { return i * 150; })
+      .text(d => { return d.count; })
+      .attr("y", d => { return y(d.count) + .1; })
+      .attr("dy", "-.7em");
   };
 
   // AUTOCOMPLETE SEARCH FIELD ***********************************************

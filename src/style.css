@@ -40,6 +40,20 @@ img {
   width: 100%;
 }
 
+#about {
+  margin: 30px 100px 0px;
+  text-align: center;
+  font-size: 18px;
+}
+
+#about > p {
+  margin: 0px;
+}
+
+.hidden {
+  display: none !important;
+}
+
 .data {
   display: flex;
   flex-direction: column;
