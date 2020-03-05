@@ -219,14 +219,14 @@ import { csv } from 'd3';
         })
         .on('mouseout', function () {
           const selection = d3.select(this)
-          selection
-            .transition()
-            .delay("100")
-            .duration("10")
-            .style("stroke", "steelblue")
-            .style("opacity", "0.3")
-            .style("stroke-width", "1.5px");
-        });
+              selection
+                  .transition()
+                  .delay("100")
+                  .duration("10")
+                  .style("stroke","steelblue")
+                  .style("opacity","0.3")
+                  .style("stroke-width","2");
+          });
 
 
     }
