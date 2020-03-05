@@ -3,12 +3,12 @@ import {csv} from 'd3';
 "use strict";
 (function() {
   window.addEventListener('load', init);
-  
-  var mainData = [];
-  var airportList = [];
-  var flightList = [];
-  var delayTimeList = [];
-  var airlineUnique = [];
+
+  var airportList = []; // initial airport list (everything)
+  var flightList = [];  // only one origin, multiple dests
+  var airlineUnique = []; // get airline
+  var destList = []; // only dest airports (after origin is chosen)
+  var flightFiltered = []; // one origin, one dest
 
   function init() {
     const d3 = require('d3');
@@ -18,10 +18,10 @@ import {csv} from 'd3';
       
     // for search bars
     autocomplete(document.getElementById("originInput"), airportList);
-    autocomplete(document.getElementById("destInput"), airportList);
+    // autocomplete(document.getElementById("destInput"), airportList);
   }
   
-  // LOAD ORIGIN DATA
+  // load origin airport data
   function loadAirportData() {
     d3.csv('airportList.csv').then(function(data) {
       data.forEach(function(d) {
@@ -30,62 +30,66 @@ import {csv} from 'd3';
     })
   }
 
-  // GET ORIGIN AND DESTINATION INPUT
-  // and then load the flight data by origin
-  // once the origin has been chosen
-  function loadFlightData() {
+  function loadOrigin() {
     var origin = document.getElementById('originInput').value;
-    var dest = document.getElementById('destInput').value;
-
-    origin = origin.substring(origin.length - 4, origin.length - 1);
-    dest = dest.substring(dest.length - 4, dest.length - 1);
-    // console.log("origin " + origin + ", destination " + dest);
+    var ori = origin.substring(origin.length - 4, origin.length - 1);
+    // console.log('origin ' + ori);
     
-    if (dest) {
-      d3.csv(origin + '.csv')
-      .then(function(data) {
-        flightList = [];
-        //console.log(data[0].Destination);
-        //console.log("dest: " + dest);
-        data.forEach(function(d) {
-          if (d.Destination == dest) {
-            //console.log('inside if');
-            flightList.push(d);
+    d3.csv(ori + '.csv')
+    .then(function(d) {
+      var dests = [];
+      destList = [];
+      flightList = [];
+      d.forEach(function(e) {
+        dests.push(e.Destination);
+        flightList.push(e);
+      })
+      dests = [...new Set(dests)];
+
+      airportList.forEach(function(e) {
+        dests.forEach(function (f) {
+          var temp = e.substring(e.length - 4, e.length - 1);
+          if (f === temp) {
+            // console.log('here');
+            destList.push(e);
           }
         })
-        
-        if (flightList.length == 0) {
-          // print message
-          alert("there is no available flight data for this itinerary");
-          d3.selectAll("svg").remove();
-        } else {
-            // Delete old svg before drawing a new one
-            d3.selectAll("#line-chart").remove();
-            d3.selectAll("#pie-chart").remove();
-            drawDelayedBars(2018, 2019);
-        }
+      })
 
-        flightList.forEach(function(d) {
-          //console.log(d);
-        })
+      // console.log('begin');
+      // console.log(destList);
+      // console.log('end');
+      autocomplete(document.getElementById("destInput"), destList);
+    })
+  }
 
-      });
-    }
+  function loadDestination() {
+    var dest = document.getElementById('destInput').value;
+    dest = dest.substring(dest.length - 4, dest.length - 1);
+    // console.log(dest);
+    // console.log(flightList[0]);
 
+    flightFiltered = [];
+    flightList.forEach(function(d) {
+      if (d.Destination === dest) {
+        flightFiltered.push(d);
+      }
+    })
+
+    // Delete old svg before drawing a new one
+    d3.selectAll("#line-chart").remove();
+    d3.selectAll("#pie-chart").remove();
+    drawDelayedBars();
   }
  
-  // pass in year range in here
-  // minYear (inclusive), maxYear(exclusive)
-  // if slider is only 2015, then minYear: 2015, maxYear: 2016
-  function drawDelayedBars(minYear, maxYear) {
+  // drawing main line graph
+  function drawDelayedBars() {
     var flightYear = [];
     var airlines = [];
     // include all the flights after year filter has been set
     flightList.forEach(function(d) {
-      if (d.Year >= minYear && d.Year < maxYear) {
-        flightYear.push(d);
-        airlines.push(d.Airline);
-      }
+      flightYear.push(d);
+      airlines.push(d.Airline);
     })
 
     // get all the airlines
@@ -359,9 +363,9 @@ import {csv} from 'd3';
         // instead of only looking the first few characters
         // so people can search using the code too
         const results = fuzzysort.go(val, arr);
-        console.log('begin');
-        console.log(results);
-        console.log('end');
+        // console.log('begin');
+        // console.log(results);
+        // console.log('end');
 
         results.forEach(function(d) {
           b = document.createElement("DIV");
@@ -369,7 +373,13 @@ import {csv} from 'd3';
           b.innerHTML += "<input type='hidden' value='" + d.target + "'>";
           b.addEventListener('click', function(e) {
             inp.value = this.getElementsByTagName("input")[0].value;
-            loadFlightData();
+
+            if (inp === document.getElementById("originInput")) {
+              loadOrigin();
+            } else {
+              loadDestination();
+            }
+            // loadFlightData();
             closeAllLists();
           })
           a.appendChild(b);
