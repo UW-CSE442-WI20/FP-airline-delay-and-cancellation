@@ -20,6 +20,10 @@ body {
     text-transform: uppercase;
 }
 
+#no-cancel {
+    margin: 20px 0px;
+}
+
 .autocomplete {
   /*the container must be positioned relative:*/
   position: relative;

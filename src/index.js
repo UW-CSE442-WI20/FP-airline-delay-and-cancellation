@@ -228,6 +228,7 @@ import {csv} from 'd3';
   // Cancellation Pie Chart
   function drawCancel(airline, mean) {
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
+    var x = document.getElementById("no-cancel");
     if (flightList.length != 0) {
     flightList.forEach(function(d) {
         if (d.Airline == airline) {
@@ -244,7 +245,7 @@ import {csv} from 'd3';
             }
         }
     });
-
+   var totalCan = carrier + weather + nationalAir + security;
    // set the dimensions and margins of the graph
    var width = 450,
        height = 450,
@@ -267,10 +268,10 @@ import {csv} from 'd3';
    // set the color scale
    var color = d3.scaleOrdinal()
      .domain(data)
-     .range(d3.schemeSet2);
+     .range(d3.schemeTableau10);
    // Compute the position of each group on the pie:
    var pie = d3.pie()
-     .value(function(d) {return d.value; })
+     .value(function(d) { return d.value; })
    var data_ready = pie(d3.entries(data))
    // Now I know that group A goes from 0 degrees to x degrees and so on.
 
@@ -280,6 +281,8 @@ import {csv} from 'd3';
      .outerRadius(radius)
 
    // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+   if (totalCan != 0) {
+   x.style.display = "none";
    svg
      .selectAll('mySlices')
      .data(data_ready)
@@ -302,7 +305,8 @@ import {csv} from 'd3';
      .style("text-anchor", "middle")
      .style("font-size", 17)
      } else {
-        //document.write("no flight");
+        x.style.display = "block";
+     }
      }
   }
 
