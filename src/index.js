@@ -105,7 +105,7 @@ import {csv} from 'd3';
       .rangeRound([0, w]);
 
     var y = d3.scaleLinear()
-      .domain([-60, 90])
+      .domain([-5, 40])
       .range([h, 0]);
 
     var xAxis = d3.axisBottom(x)
@@ -120,7 +120,7 @@ import {csv} from 'd3';
       .tickFormat('');
 
     var yGrid = d3.axisLeft(y)
-      .ticks(5)
+      .ticks(2)
       .tickSize(-w, 0, 0)
       .tickFormat('');
 
@@ -202,6 +202,29 @@ import {csv} from 'd3';
           d3.selectAll("#pie-chart").remove();
           drawCancel(d.airline, mean_data);
         });
+
+      svg.selectAll("path")
+          .on('mouseover', function() {
+              const selection = d3.select(this).raise();
+              selection
+                  .transition()
+                  .delay("100")
+                  .duration("10")
+                  .style("stroke","#steelblue")
+                  .style("opacity","1")
+                  .style("stroke-width","3");
+          })
+          .on('mouseout', function() {
+          const selection = d3.select(this)
+              selection
+                  .transition()
+                  .delay("100")
+                  .duration("10")
+                  .style("stroke","steelblue")
+                  .style("opacity","0.3")
+                  .style("stroke-width","1.5px");
+          });
+
 
     }
   }
