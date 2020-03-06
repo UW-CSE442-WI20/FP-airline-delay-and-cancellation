@@ -22,6 +22,18 @@ import { csv } from 'd3';
     autocomplete(document.getElementById("originInput"), airportList);
   }
 
+  function showData() {
+    document.querySelectorAll(".data").forEach(function(element) {
+      element.classList.remove("hidden")
+    });
+  }
+
+  function hideData() {
+    document.querySelectorAll(".data").forEach(function(element) {
+      element.classList.add("hidden")
+    });
+  }
+
   // load origin airport data
   function loadAirportData() {
     d3.csv('airportList.csv').then(function (data) {
@@ -66,6 +78,8 @@ import { csv } from 'd3';
   }
 
   function loadDestination() {
+    showData();
+
     var dest = document.getElementById('destInput').value;
     dest = dest.substring(dest.length - 4, dest.length - 1);
     // console.log(dest);

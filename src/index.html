@@ -13,39 +13,71 @@
     <section class="main-banner">
         <h1>Airline Delay and Cancellation</h1>
         <div class="image">
-<!--            <img src="../img/home-airplane.png" alt="">-->
+            <img src="../img/ezgif.com-video-to-gif.gif" alt="">
         </div>
     </section>
-    <section>
-    <div>
-      <div class="text">Where from?</div>
-      <form autocomplete="off" action="/action_page.php">
-        <div class="autocomplete" style="width:300px;">
-          <input id="originInput" type="text" name="originCity" placeholder="Origin City">
+
+    <section id="searchInput">
+        <div>
+            <div class="text">Where from?</div>
+            <form autocomplete="off" action="/action_page.php">
+                <div class="autocomplete" style="width:300px;">
+                    <input id="originInput" type="text" name="originCity" placeholder="Origin City">
+                </div>
+            </form>
         </div>
-      </form>
-      <div class="text">Where to?</div>
-      <form autocomplete="off" action="/action_page.php">
-        <div class="autocomplete" style="width:300px;">
-          <input id="destInput" type="text" name="destCity" placeholder="Destination City">
+        <div>
+            <div class="text">Where to?</div>
+            <form autocomplete="off" action="/action_page.php">
+                <div class="autocomplete" style="width:300px;">
+                    <input id="destInput" type="text" name="destCity" placeholder="Destination City">
+                </div>
+            </form>
         </div>
-      </form>
-    </div>
     </section>
-    <section>
-    <div class="text">Line Graph</div>
-    <div id="chart"></div>
-    <div class="text">Cancellation Reasons</div>
-    <div id="cancellation">
-        <div id="no-cancel" style="display: none;">
-            No cancellation record for this airline.
-        </div>
-    </div>
+
+    <section id="about">
+        <p>
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+            Some text about what the project is
+        </p>
     </section>
-    <section>
-      <div id="delays">
+
+    <section class="data hidden">
+        <div class="text">Line Graph</div>
+        <div id="chart"></div>
+    </section>
+
+    <section class="data hidden">
+        <div class="text">Cancellation Reasons</div>
+        <div id="cancellation">
+            <div id="no-cancel" style="display: none;">
+                No cancellation record for this airline.
+            </div>
+        </div>
+    </section>
+
+    <section class="data hidden" id="delays">
         <div class="text">Number of delays</div>
-      </div>
     </section>
+
+<!--    <section id="footer">-->
+<!--        <h1>Created By</h1>-->
+<!--    </section>-->
   </body>
 </html>
