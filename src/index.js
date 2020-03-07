@@ -22,16 +22,12 @@ import { csv } from 'd3';
     autocomplete(document.getElementById("originInput"), airportList);
   }
 
-  function showData() {
-    document.querySelectorAll(".data").forEach(function(element) {
-      element.classList.remove("hidden")
-    });
+  function showData(id) {
+    document.getElementById(id).classList.remove("hidden");
   }
 
-  function hideData() {
-    document.querySelectorAll(".data").forEach(function(element) {
-      element.classList.add("hidden")
-    });
+  function hideData(id) {
+    document.getElementById(id).classList.add("hidden");
   }
 
   // load origin airport data
@@ -78,8 +74,6 @@ import { csv } from 'd3';
   }
 
   function loadDestination() {
-    showData();
-
     var dest = document.getElementById('destInput').value;
     dest = dest.substring(dest.length - 4, dest.length - 1);
     // console.log(dest);
@@ -101,6 +95,7 @@ import { csv } from 'd3';
 
   // drawing main line graph
   function drawDelayedBars() {
+    showData("averageSection");
     // console.log('drawing...');
     var flightYear = [];
     var airlines = [];
@@ -121,9 +116,6 @@ import { csv } from 'd3';
         minMean = Math.min(+minMean, +d.mean);
         maxMean = Math.max(+maxMean, +d.mean);
       })
-      // console.log("min " + minMean);
-      // console.log("max " + maxMean)
-      //plotLine(mean, d);
     })
 
     // SET UP SVG
@@ -257,13 +249,13 @@ import { csv } from 'd3';
             .style("opacity","0.3")
             .style("stroke-width","2");
           })
-        // .on('click', function (d) {
-        //   // Delete old svg before drawing a new one
-        //   d3.selectAll("#pie-chart").remove();
-        //   d3.selectAll("#bar-chart").remove();
-        //   drawCancel(d.airline, mean_data);
-        //   drawNumberDelays(d.airline);
-        // });
+    }
+
+    function drawList(mean_data) {
+      var a = document.createElement("DIV");
+      a.setAttribute("id", "mean-list");
+      a.setAttribute("class", "mean-items");
+    
     }
   }
 
@@ -292,6 +284,7 @@ import { csv } from 'd3';
 
   // Cancellation Pie Chart
   function drawCancel(airline, mean) {
+    showData("cancellationSection");
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     var x = document.getElementById("no-cancel");
     if (flightList.length != 0) {
@@ -377,6 +370,7 @@ import { csv } from 'd3';
 
   // draw bar graph
   function drawNumberDelays(airline) {
+    showData("delaysSection");
     var delayedByAirline = [];
     flightFiltered.forEach(function (d) {
       if (d.Airline === airline && d["Departure Delay Time (mins)"] > 0) {
@@ -565,9 +559,6 @@ import { csv } from 'd3';
           } else {
             loadDestination();
           }
-
-          // loadOrigin();
-          // loadDestination();
           closeAllLists();
         })
         a.appendChild(b);
@@ -580,6 +571,12 @@ import { csv } from 'd3';
     inp.addEventListener("keydown", function (e) {
       var x = document.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
+
+      if (e.keyCode == 8) {
+        if (inp === document.getElementById("originInput")) {
+          document.getElementById("destInput").value = '';
+        }
+      }
       if (e.keyCode == 40) {
         /*If the arrow DOWN key is pressed,
         increase the currentFocus variable:*/

@@ -1,17 +1,24 @@
 * { box-sizing: border-box; }
 body {
+  font-family: 'Spartan', sans-serif;
   background-color: #CDEAF8;
-  font: 16px Arial;
+  font-size: 16px;
   margin: 30px 50px;
   display: flex;
   flex-direction: column;
-  font-family: formula-regualar;
+}
+
+p {
+  line-height: 1.4em;
+  letter-spacing: normal;
 }
 
 .main-banner > h1 {
   width: fit-content;
   margin: auto;
   font-size: 40px;
+  font-weight: 500;
+  color: #444;
 }
 
 .image {
@@ -35,19 +42,20 @@ img {
 }
 
 .autocomplete > input {
-  border: 1px solid #000000;
   background-color: #EEC9BC;
+  color: #444;
   width: 100%;
 }
 
 #about {
-  margin: 30px 100px 0px;
+  margin: 25px 100px 0;
   text-align: center;
   font-size: 18px;
 }
 
 #about > p {
   margin: 0px;
+  color: #444;
 }
 
 .hidden {
@@ -58,7 +66,8 @@ img {
   display: flex;
   flex-direction: column;
   height: 500px;
-  margin-top: 30px;
+  margin-top: 20px;
+  margin-bottom: 50px;
 }
 
 .data > .text {
@@ -67,10 +76,17 @@ img {
   align-self: flex-start;
 }
 
+.labelText {
+  font-size: 20px;
+  color: #444;
+  margin-bottom: 5px;
+}
+
 .text {
   font-size: 20px;
-  font-weight: bold;
   text-transform: uppercase;
+  color: #444;
+  margin-bottom: 5px;
 }
 
 
@@ -110,6 +126,7 @@ input {
   background-color: #f1f1f1;
   padding: 10px;
   font-size: 16px;
+  font-family: 'Spartan', sans-serif;
 }
 
 input[type=submit] {
@@ -119,7 +136,7 @@ input[type=submit] {
 
 .autocomplete-items {
   position: absolute;
-  border: 1px solid #d4d4d4;
+  /* border: 1px solid #d4d4d4; */
   border-bottom: none;
   border-top: none;
   z-index: 99;
@@ -136,6 +153,7 @@ input[type=submit] {
   cursor: pointer;
   background-color: #fff;
   border-bottom: 1px solid #d4d4d4;
+  color: #444;
 }
 
 .autocomplete-items div:hover {
@@ -165,13 +183,11 @@ input[type=submit] {
   
 .axis text {
   fill: #2b2929;
-  font-family: Georgia;
   font-size: 120%;
 }
   
 .serie_label {
   fill: #2b2929;
-  font-family: Georgia;
   font-size: 80%;
 }
 

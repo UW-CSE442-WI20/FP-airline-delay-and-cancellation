@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <title>Airline Delay and Cancellation</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://rawgit.com/farzher/fuzzysort/master/fuzzysort.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Spartan:300,400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="./index.js"></script>
   </head>
   <body>
@@ -19,7 +20,7 @@
 
     <section id="searchInput">
         <div>
-            <div class="text">Where from?</div>
+            <div class="labelText">Where from?</div>
             <form autocomplete="off" action="/action_page.php">
                 <div class="autocomplete" style="width:300px;">
                     <input id="originInput" type="text" name="originCity" placeholder="Origin City">
@@ -27,7 +28,7 @@
             </form>
         </div>
         <div>
-            <div class="text">Where to?</div>
+            <div class="labelText">Where to?</div>
             <form autocomplete="off" action="/action_page.php">
                 <div class="autocomplete" style="width:300px;">
                     <input id="destInput" type="text" name="destCity" placeholder="Destination City">
@@ -38,32 +39,16 @@
 
     <section id="about">
         <p>
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
-            Some text about what the project is
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam interdum sed diam aliquet sodales. Nulla ornare at dui id viverra. Suspendisse aliquam tortor vitae mauris blandit, at ultrices augue finibus. Proin aliquet lobortis ligula, non blandit odio pretium dictum. Vivamus lacinia consequat arcu, ut condimentum dolor feugiat non. Curabitur vehicula, leo vitae ultrices consectetur, sapien ligula congue metus, at laoreet nulla libero vitae dolor. Vivamus cursus turpis et nulla fringilla feugiat.
         </p>
     </section>
 
-    <section class="data hidden">
-        <div class="text">Line Graph</div>
+    <section id="averageSection" class="data hidden">
+        <div class="text">Average Delay Time</div>
         <div id="chart"></div>
     </section>
 
-    <section class="data hidden">
+    <section id="cancellationSection" class="data hidden">
         <div class="text">Cancellation Reasons</div>
         <div id="cancellation">
             <div id="no-cancel" style="display: none;">
@@ -72,8 +57,9 @@
         </div>
     </section>
 
-    <section class="data hidden" id="delays">
+    <section class="data hidden" id="delaysSection">
         <div class="text">Number of delays</div>
+        <div id="delays"></div>
     </section>
 
 <!--    <section id="footer">-->
