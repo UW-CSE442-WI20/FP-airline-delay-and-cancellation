@@ -4,6 +4,91 @@ import { csv } from 'd3';
 (function () {
   window.addEventListener('load', init);
 
+  var airlineColors = [
+    {
+      airline: "Endeavor",
+      color: '#020F28'
+    },
+    {
+      airline: "American",
+      color: '#178AC5'
+    },
+    {
+      airline: "Alaska",
+      color: '#01426A'
+    },
+    {
+      airline: "JetBlue",
+      color: '#8DC6E8'
+    },
+    {
+      airline: "Delta",
+      color: '#E01933'
+    },
+    {
+      airline: "ExpressJet",
+      color: '#990602'
+    },
+    {
+      airline: "Frontier",
+      color: '#006643'
+    },
+    {
+      airline: "Allegiant",
+      color: '#FBCE20'
+    },
+    {
+      airline: "Hawaiian",
+      color: '#932E89'
+    },
+    {
+      airline: "Envoy",
+      color: '#AF1E2D'
+    },
+    {
+      airline: "Spirit",
+      color: '#FFEC00'
+    },
+    {
+      airline: "PSA",
+      color: '#3F99C7'
+    },
+    {
+      airline: "SkyWest",
+      color: '#00529B'
+    },
+    {
+      airline: "United",
+      color: '#1D589C'
+    },
+    {
+      airline: "Virgin",
+      color: '#E1163C'
+    },
+    {
+      airline: "Southwest",
+      color: '#FFBF27'
+    },
+    {
+      airline: "Mesa",
+      color: '#000000'
+    },
+    {
+      airline: "Republic",
+      color: '#BCBDC0'
+    },
+  ]
+
+  // console.log(airlineColors.find(hi));
+  //
+  // function hi(item) {
+  //   console.log(item)
+  //   if (item !== undefined && "Alaska Airlines Inc. ".includes(item.airline)) {
+  //     return item;
+  //   }
+  // }
+
+
   var airportList = []; // initial airport list (everything)
   var flightList = [];  // only one origin, multiple dests
   var airlineUnique = []; // get airline
@@ -28,6 +113,12 @@ import { csv } from 'd3';
 
   function hideData(id) {
     document.getElementById(id).classList.add("hidden");
+  }
+
+  function getColor(item) {
+    if ("Alaska Airlines Inc. ".includes(item.airline)) {
+      return item.color;
+    }
   }
 
   // load origin airport data
@@ -197,9 +288,13 @@ import { csv } from 'd3';
       svg.append('path')
         .datum(mean_data)
         .attr('class', 'line')
-        .attr('d', line);
-
-      console.log(svg.selectAll('.dot'));
+        .attr('d', line)
+        .attr('stroke', airlineColors.find(function (item) {
+            if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+              return item;
+            }
+          }).color
+        );
 
       svg.selectAll('.dot')
         .data(mean_data)
@@ -212,10 +307,12 @@ import { csv } from 'd3';
           return x(d.month);
         })
         .attr('r', 4)
-        .style('fill', 'blue')
+        .style('fill', airlineColors.find(function (item) {
+          if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+            return item;
+          }
+        }).color)
         .on('mouseover', function (d) {
-          console.log("on dot")
-          console.log(d);
           d3.selectAll("#pie-chart").remove();
           d3.selectAll("#bar-chart").remove();
           drawCancel(d.airline, mean_data);
@@ -242,7 +339,7 @@ import { csv } from 'd3';
             .duration("10")
             .style("stroke", "#steelblue")
             .style("opacity", "1")
-            .style("stroke-width", "3");
+            .style("stroke-width", "4");
           // d3.selectAll("#pie-chart").remove();
           // d3.selectAll("#bar-chart").remove();
           // drawCancel(d.airline, mean_data);
@@ -254,14 +351,13 @@ import { csv } from 'd3';
         // })
         .on('mouseout', function () {
           const selection = d3.select(this)
-          console.log(selection)
           selection
             .transition()
             .delay("100")
             .duration("10")
-            .style("stroke","steelblue")
+            // .style("stroke","steelblue")
             .style("opacity","0.3")
-            .style("stroke-width","2");
+            .style("stroke-width","3");
           // return tooltip.style('visibility', 'hidden');
         });
     }

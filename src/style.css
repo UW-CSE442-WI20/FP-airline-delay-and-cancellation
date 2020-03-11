@@ -197,7 +197,7 @@ input[type=submit] {
 
 path.line {
   fill: none;
-  stroke: steelblue;
+  /*stroke: steelblue;*/
   opacity: 0.3;
-  stroke-width: 2;
+  stroke-width: 3;
 }
