@@ -76,6 +76,10 @@ img {
   align-self: flex-start;
 }
 
+.data > div {
+  align-self: center;
+}
+
 .labelText {
   font-size: 20px;
   color: #444;

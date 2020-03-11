@@ -199,6 +199,8 @@ import { csv } from 'd3';
         .attr('class', 'line')
         .attr('d', line);
 
+      console.log(svg.selectAll('.dot'));
+
       svg.selectAll('.dot')
         .data(mean_data)
         .enter().append('circle')
@@ -212,6 +214,12 @@ import { csv } from 'd3';
         .attr('r', 4)
         .style('fill', 'blue')
         .on('mouseover', function (d) {
+          console.log("on dot")
+          console.log(d);
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d.airline, mean_data);
+          drawNumberDelays(d.airline);
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
         .on('mousemove', function () {
@@ -219,17 +227,14 @@ import { csv } from 'd3';
         })
         .on('mouseout', function () {
           return tooltip.style('visibility', 'hidden');
-        })
-        .on('click', function (d) {
-          // Delete old svg before drawing a new one
-          d3.selectAll("#pie-chart").remove();
-          d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline, mean_data);
-          drawNumberDelays(d.airline);
         });
 
-      svg.selectAll("path")
-        .on('mouseover', function () {
+      svg.selectAll(".line")
+        .data(mean_data)
+        .on('mouseover', function (d) {
+          // console.log(mean_data);
+          // console.log(d);
+          // console.log(d.airline);
           const selection = d3.select(this).raise();
           selection
             .transition()
@@ -238,9 +243,18 @@ import { csv } from 'd3';
             .style("stroke", "#steelblue")
             .style("opacity", "1")
             .style("stroke-width", "3");
+          // d3.selectAll("#pie-chart").remove();
+          // d3.selectAll("#bar-chart").remove();
+          // drawCancel(d.airline, mean_data);
+          // drawNumberDelays(d.airline);
+          // return tooltip.style('visibility', 'visible').text(d.airline);
         })
+        // .on('mousemove', function () {
+        //   return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
+        // })
         .on('mouseout', function () {
           const selection = d3.select(this)
+          console.log(selection)
           selection
             .transition()
             .delay("100")
@@ -248,7 +262,8 @@ import { csv } from 'd3';
             .style("stroke","steelblue")
             .style("opacity","0.3")
             .style("stroke-width","2");
-          })
+          // return tooltip.style('visibility', 'hidden');
+        });
     }
 
     function drawList(mean_data) {
