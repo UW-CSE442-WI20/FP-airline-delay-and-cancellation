@@ -1,93 +1,9 @@
 import { csv } from 'd3';
+import airlineColors from './airline-colors';
 
 "use strict";
 (function () {
   window.addEventListener('load', init);
-
-  var airlineColors = [
-    {
-      airline: "Endeavor",
-      color: '#020F28'
-    },
-    {
-      airline: "American",
-      color: '#178AC5'
-    },
-    {
-      airline: "Alaska",
-      color: '#01426A'
-    },
-    {
-      airline: "JetBlue",
-      color: '#8DC6E8'
-    },
-    {
-      airline: "Delta",
-      color: '#E01933'
-    },
-    {
-      airline: "ExpressJet",
-      color: '#990602'
-    },
-    {
-      airline: "Frontier",
-      color: '#006643'
-    },
-    {
-      airline: "Allegiant",
-      color: '#FBCE20'
-    },
-    {
-      airline: "Hawaiian",
-      color: '#932E89'
-    },
-    {
-      airline: "Envoy",
-      color: '#AF1E2D'
-    },
-    {
-      airline: "Spirit",
-      color: '#FFEC00'
-    },
-    {
-      airline: "PSA",
-      color: '#3F99C7'
-    },
-    {
-      airline: "SkyWest",
-      color: '#00529B'
-    },
-    {
-      airline: "United",
-      color: '#1D589C'
-    },
-    {
-      airline: "Virgin",
-      color: '#E1163C'
-    },
-    {
-      airline: "Southwest",
-      color: '#FFBF27'
-    },
-    {
-      airline: "Mesa",
-      color: '#000000'
-    },
-    {
-      airline: "Republic",
-      color: '#BCBDC0'
-    },
-  ]
-
-  // console.log(airlineColors.find(hi));
-  //
-  // function hi(item) {
-  //   console.log(item)
-  //   if (item !== undefined && "Alaska Airlines Inc. ".includes(item.airline)) {
-  //     return item;
-  //   }
-  // }
-
 
   var airportList = []; // initial airport list (everything)
   var flightList = [];  // only one origin, multiple dests
@@ -96,6 +12,7 @@ import { csv } from 'd3';
   var flightFiltered = []; // one origin, one dest
   var minMean = 1000000;
   var maxMean = -1000000;
+  var meanList = []; // to make the list
 
   function init() {
     const d3 = require('d3');
@@ -201,12 +118,19 @@ import { csv } from 'd3';
 
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
-      // minMean = Math.min(minMean, )
       mean.forEach(function(d) {
         // console.log(+d.mean);
         minMean = Math.min(+minMean, +d.mean);
         maxMean = Math.max(+maxMean, +d.mean);
       })
+
+      var total = 0;
+      for (var i = 0; i < mean.length; i++) {
+        total += mean[i].mean;
+      }
+
+      var temp = { airline: mean[0].airline, mean: total / mean.length };
+      meanList.push(temp);
     })
 
     // SET UP SVG
@@ -263,12 +187,14 @@ import { csv } from 'd3';
       .attr('class', 'y-grid')
       .call(yGrid);
 
+    drawList();
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
       plotLine(mean, d);
     })
 
     function plotLine(mean_data, cirClass) {
+      // console.log(cirClass);
       var line = d3.line()
         .curve(d3.curveCardinal)
         .x(function (d) {
@@ -285,6 +211,38 @@ import { csv } from 'd3';
         .style('visibility', 'hidden')
         .text('');
 
+      svg.selectAll('.dot')
+        .data(mean_data)
+        .enter().append('circle')
+        .attr('class', cirClass)
+        .attr('cy', function (d) {
+          return y(d.mean);
+        })
+        .attr('cx', function (d, i) {
+          return x(d.month);
+        })
+        .attr('r', 3)
+        .on('click', function (d) {
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d.airline);
+          drawNumberDelays(d.airline);
+        })
+        .on('mouseover', function (d) {
+          return tooltip.style('visibility', 'visible').text(d.airline);
+        })
+        .on('mousemove', function () {
+          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
+        })
+        .on('mouseout', function () {
+          return tooltip.style('visibility', 'hidden');
+        })
+        .style('fill', airlineColors.find(function (airlineColor) {
+          if (airlineColor !== undefined && mean_data[0].airline.includes(airlineColor.airline)) {
+            return airlineColor;
+          }
+        }).color)
+
       svg.append('path')
         .datum(mean_data)
         .attr('class', 'line')
@@ -296,42 +254,20 @@ import { csv } from 'd3';
           }).color
         );
 
-      svg.selectAll('.dot')
-        .data(mean_data)
-        .enter().append('circle')
-        .attr('class', cirClass)
-        .attr('cy', function (d) {
-          return y(d.mean);
-        })
-        .attr('cx', function (d, i) {
-          return x(d.month);
-        })
-        .attr('r', 4)
-        .style('fill', airlineColors.find(function (item) {
-          if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
-            return item;
-          }
-        }).color)
-        .on('mouseover', function (d) {
-          d3.selectAll("#pie-chart").remove();
-          d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline, mean_data);
-          drawNumberDelays(d.airline);
-          return tooltip.style('visibility', 'visible').text(d.airline);
-        })
-        .on('mousemove', function () {
-          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
-        })
-        .on('mouseout', function () {
-          return tooltip.style('visibility', 'hidden');
-        });
+      // console.log('begin');
+      // console.log(mean_data);
+      // console.log('end');
 
       svg.selectAll(".line")
-        .data(mean_data)
-        .on('mouseover', function (d) {
-          // console.log(mean_data);
+        .data(airlineUnique)
+        .on('click', function (d) {
           // console.log(d);
-          // console.log(d.airline);
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d);
+          drawNumberDelays(d);
+        })
+        .on('mouseover', function (d) {
           const selection = d3.select(this).raise();
           selection
             .transition()
@@ -339,34 +275,52 @@ import { csv } from 'd3';
             .duration("10")
             .style("stroke", "#steelblue")
             .style("opacity", "1")
-            .style("stroke-width", "4");
-          // d3.selectAll("#pie-chart").remove();
-          // d3.selectAll("#bar-chart").remove();
-          // drawCancel(d.airline, mean_data);
-          // drawNumberDelays(d.airline);
-          // return tooltip.style('visibility', 'visible').text(d.airline);
+            .style("stroke-width", "3");
+          return tooltip.style('visibility', 'visible').text(d);
         })
-        // .on('mousemove', function () {
-        //   return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
-        // })
+        .on('mousemove', function () {
+          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
+        })
         .on('mouseout', function () {
           const selection = d3.select(this)
           selection
             .transition()
             .delay("100")
             .duration("10")
-            // .style("stroke","steelblue")
             .style("opacity","0.3")
             .style("stroke-width","3");
-          // return tooltip.style('visibility', 'hidden');
+          return tooltip.style('visibility', 'hidden');
         });
     }
+  }
 
-    function drawList(mean_data) {
-      var a = document.createElement("DIV");
-      a.setAttribute("id", "mean-list");
-      a.setAttribute("class", "mean-items");
-    
+  function drawList() {
+    let table = document.querySelector('table');
+    let data = Object.keys(meanList[0]);
+    generateTable(table, meanList);
+    generateTableHead(table, data);
+  }
+
+  function generateTableHead(table, data) {
+    // console.log(data);
+    let thead = table.createTHead();
+    let row = thead.insertRow();
+    for (let key of data) {
+      let th = document.createElement("th");
+      let text = document.createTextNode(key);
+      th.appendChild(text);
+      row.appendChild(th);
+    }
+  }
+
+  function generateTable(table, data) {
+    for (let element of data) {
+      let row = table.insertRow();
+      for (let key in element) {
+        let cell = row.insertCell();
+        let text = document.createTextNode(element[key]);
+        cell.appendChild(text);
+      }
     }
   }
 
@@ -394,7 +348,8 @@ import { csv } from 'd3';
   }
 
   // Cancellation Pie Chart
-  function drawCancel(airline, mean) {
+  function drawCancel(airline) {
+    console.log(airline);
     showData("cancellationSection");
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     var x = document.getElementById("no-cancel");
