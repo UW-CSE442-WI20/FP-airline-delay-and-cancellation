@@ -93,7 +93,25 @@ img {
   margin-bottom: 5px;
 }
 
+.visuals {
+  display: flex;
+}
 
+#table {
+  padding-top: 50px;
+  width: 545px;
+  height: 400px;
+}
+
+table {
+  width: 545px;
+  height: 400px;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
 
 
 
