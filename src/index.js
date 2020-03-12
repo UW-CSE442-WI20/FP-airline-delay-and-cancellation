@@ -98,6 +98,13 @@ import airlineColors from './airline-colors';
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
     d3.selectAll("#bar-chart").remove();
+    // var tableRef = document.getElementById("table-chart");
+    // if (typeof document.getElementsByTagName('thead')[0] === "object") {
+    //   console.log("hiu")
+    //   tableRef.removeChild(document.getElementsByTagName('thead')[0]);
+    //   tableRef.removeChild(document.getElementsByTagName('tbody')[0]);
+    // }
+
     drawDelayedBars();
   }
 
