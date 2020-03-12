@@ -14,6 +14,8 @@ import airlineColors from './airline-colors';
   var maxMean = -1000000;
   var meanList = []; // to make the list
 
+  var table, thead, tbody, rows, cells;
+
   function init() {
     const d3 = require('d3');
     const fuzzysort = require('fuzzysort');
@@ -98,6 +100,7 @@ import airlineColors from './airline-colors';
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
     d3.selectAll("#bar-chart").remove();
+    d3.selectAll("#avg-table").remove();
     // var tableRef = document.getElementById("table-chart");
     // if (typeof document.getElementsByTagName('thead')[0] === "object") {
     //   console.log("hiu")
@@ -283,6 +286,7 @@ import airlineColors from './airline-colors';
             .style("stroke", "#steelblue")
             .style("opacity", "1")
             .style("stroke-width", "3");
+          // d is the airline hightlighted
           return tooltip.style('visibility', 'visible').text(d);
         })
         .on('mousemove', function () {
@@ -302,16 +306,51 @@ import airlineColors from './airline-colors';
   }
 
   function drawList() {
-    showData("averageTable");
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#table").append("svg")
       .attr("height", 1)
       .attr("width", 1);
 
-    var table = d3.select("#table-location")
+    table = d3.select("#table")
       .append("table")
+      .attr("id", "avg-table")
       .attr("class", "table table-condensed table-striped"),
     thead = table.append("thead"),
     tbody = table.append("tbody");
+
+    var columns = Object.keys(meanList[0]);
+    var header = thead.append("tr")
+      .selectAll("th")
+      .data(columns)
+      .enter()
+      .append("th")
+      .text(function (d) {
+        return d;
+      });
+
+    rows = tbody.selectAll("tr")
+      .data(meanList)
+      .enter()
+      .append("tr")
+      .on("mouseover", function (d) {
+        d3.select(this)
+          .style("background-color", "orange");
+      })
+      .on("mouseout", function (d) {
+        d3.select(this)
+          .style("background-color", "transparent");
+      });
+
+      cells = rows.selectAll("td")
+        .data(function (row) {
+          return columns.map(function (d, i) {
+            return {i : d, value: row[d]};
+          });
+        })
+        .enter()
+        .append("td")
+        .html(function(d) {
+          return d.value;
+        });
   }
 
   function getMean(airline, flightYear) {
