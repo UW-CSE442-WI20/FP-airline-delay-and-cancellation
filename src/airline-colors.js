@@ -49,7 +49,7 @@ const airlineColors = [
   },
   {
     airline: "SkyWest",
-    color: '#00529B'
+    color: '#978EF5'
   },
   {
     airline: "United",
