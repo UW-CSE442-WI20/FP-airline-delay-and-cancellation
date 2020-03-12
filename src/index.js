@@ -295,33 +295,16 @@ import airlineColors from './airline-colors';
   }
 
   function drawList() {
-    let table = document.querySelector('table');
-    let data = Object.keys(meanList[0]);
-    generateTable(table, meanList);
-    generateTableHead(table, data);
-  }
+    showData("averageTable");
+    var svg = d3.select("body").append("svg")
+      .attr("height", 1)
+      .attr("width", 1);
 
-  function generateTableHead(table, data) {
-    // console.log(data);
-    let thead = table.createTHead();
-    let row = thead.insertRow();
-    for (let key of data) {
-      let th = document.createElement("th");
-      let text = document.createTextNode(key);
-      th.appendChild(text);
-      row.appendChild(th);
-    }
-  }
-
-  function generateTable(table, data) {
-    for (let element of data) {
-      let row = table.insertRow();
-      for (let key in element) {
-        let cell = row.insertCell();
-        let text = document.createTextNode(element[key]);
-        cell.appendChild(text);
-      }
-    }
+    var table = d3.select("#table-location")
+      .append("table")
+      .attr("class", "table table-condensed table-striped"),
+    thead = table.append("thead"),
+    tbody = table.append("tbody");
   }
 
   function getMean(airline, flightYear) {
