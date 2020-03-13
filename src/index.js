@@ -155,16 +155,6 @@ import airlineColors from './airline-colors';
     var yAxis = d3.axisLeft(y)
       .ticks(10);
 
-    var xGrid = d3.axisBottom(x)
-      .ticks(5)
-      .tickSize(-h, 0, 0)
-      .tickFormat('');
-
-    var yGrid = d3.axisLeft(y)
-      .ticks(2)
-      .tickSize(-w, 0, 0)
-      .tickFormat('');
-
     var svg = d3.select('#chart').append('svg')
       .attr("id", "line-chart")
       .attr("width", w + margin.left + margin.right)
@@ -180,15 +170,6 @@ import airlineColors from './airline-colors';
     svg.append('g')
       .attr('class', 'y axes')
       .call(yAxis);
-
-    svg.append('g')
-      .attr('class', 'grid')
-      .attr('transform', 'translate(0,' + h + ')')
-      .call(xGrid);
-
-    svg.append('g')
-      .attr('class', 'y-grid')
-      .call(yGrid);
 
     drawList();
     airlineUnique.forEach(function (d) {
