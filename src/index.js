@@ -171,6 +171,14 @@ import airlineColors from './airline-colors';
       .attr('class', 'y axes')
       .call(yAxis);
 
+    svg.append("line")
+        .attr("x1", 0)
+        .attr("x2", 545)
+        .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+        .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+        .attr("stroke-width", 2)
+        .attr("stroke", "black")
+
     drawList();
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
