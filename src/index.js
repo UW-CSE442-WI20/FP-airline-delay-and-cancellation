@@ -22,8 +22,6 @@ import airlineColors from './airline-colors';
     const fuzzysort = require('fuzzysort');
 
     loadAirportData();
-
-    // for search bars
     autocomplete(document.getElementById("originInput"), airportList);
   }
 
@@ -35,7 +33,7 @@ import airlineColors from './airline-colors';
     document.getElementById(id).classList.add("hidden");
   }
 
-  // load origin airport data
+  // load list of airports data
   function loadAirportData() {
     d3.csv('airportList.csv').then(function (data) {
       data.forEach(function (d) {
@@ -44,6 +42,7 @@ import airlineColors from './airline-colors';
     })
   }
 
+  // load data according to origin airport chosen
   function loadOrigin() {
     var origin = document.getElementById('originInput').value;
     var ori = origin.substring(origin.length - 4, origin.length - 1);
@@ -65,15 +64,11 @@ import airlineColors from './airline-colors';
         dests.forEach(function (f) {
           var temp = e.substring(e.length - 4, e.length - 1);
           if (f === temp) {
-            // console.log('here');
             destList.push(e);
           }
         })
       })
 
-      // console.log('begin');
-      // console.log(destList);
-      // console.log('end');
       autocomplete(document.getElementById("destInput"), destList);
     })
     document.getElementById('destInput').value = '';
@@ -82,11 +77,10 @@ import airlineColors from './airline-colors';
     hideData("delaysSection");
   }
 
+  // load data after destination is chosen
   function loadDestination() {
     var dest = document.getElementById('destInput').value;
     dest = dest.substring(dest.length - 4, dest.length - 1);
-    // console.log(dest);
-    // console.log(flightList[0]);
 
     flightFiltered = [];
     flightList.forEach(function (d) {
@@ -107,7 +101,6 @@ import airlineColors from './airline-colors';
   // drawing main line graph
   function drawDelayedBars() {
     showData("averageSection");
-    // console.log('drawing...');
     var flightYear = [];
     var airlines = [];
     // include all the flights after year filter has been set
@@ -202,7 +195,6 @@ import airlineColors from './airline-colors';
     })
 
     function plotLine(mean_data, cirClass) {
-      // console.log(cirClass);
       var line = d3.line()
         .curve(d3.curveCardinal)
         .x(function (d) {
@@ -515,7 +507,7 @@ import airlineColors from './airline-colors';
       // Total non-cancelled flights
       var totalNon = total - totalCan;
       // set the dimensions and margins of the graph
-      var width = 450,
+      var width = 600,
         height = 450,
         margin = 40;
 
@@ -545,7 +537,7 @@ import airlineColors from './airline-colors';
       var pie = d3.pie()
       .sort(null)
       	 .startAngle(2*Math.PI)
-          .endAngle(4*Math.PI)
+        .endAngle(4*Math.PI)
         .value(function (d) { return d.value; })
       var data_ready = pie(d3.entries(data));
       var data_ready_M = pie(d3.entries(dataM));
@@ -633,7 +625,7 @@ import airlineColors from './airline-colors';
           .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
           .style("text-anchor", "middle")
           .style("font-size", 13)
-
+          
       } else {
         x.style.display = "block";
       }
@@ -709,7 +701,7 @@ import airlineColors from './airline-colors';
         "translate(" + (width / 2) + " ," +
         (height + margin.top + 20) + ")")
       .style("text-anchor", "middle")
-      .text("Hour")
+      .text("Hour in the day")
 
     // add the y Axis
     svg.append("g")
