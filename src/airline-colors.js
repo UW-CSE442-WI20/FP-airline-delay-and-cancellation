@@ -51,7 +51,7 @@ const airlineColors = [
   },
   {
     airline: "Spirit",
-    color: '#FFEC00',
+    color: '#decd00',
     code: 'SPI'
   },
   {
