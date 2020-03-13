@@ -132,7 +132,7 @@ import airlineColors from './airline-colors';
         total += mean[i].mean;
       }
 
-      var temp = { airline: mean[0].airline, mean: (total / mean.length).toFixed(3) };
+      var temp = { Airline: mean[0].airline, "Average Delay Time (mins)": (total / mean.length).toFixed(3) };
       meanList.push(temp);
     })
 
@@ -196,13 +196,6 @@ import airlineColors from './airline-colors';
           return y(d.mean);
         });
 
-      var tooltip = d3.select('#chart')
-        .append('div')
-        .style('position', 'absolute')
-        .style('z-index', '10')
-        .style('visibility', 'hidden')
-        .text('');
-
       svg.selectAll('.dot')
         .data(mean_data)
         .enter().append('circle')
@@ -221,13 +214,35 @@ import airlineColors from './airline-colors';
           drawNumberDelays(d.airline);
         })
         .on('mouseover', function (d) {
-          return tooltip.style('visibility', 'visible').text(d.airline);
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.airline.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", airlineColors.find(function (item) {
+              if (item !== undefined && d.airline.includes(item.airline)) {
+                return item;
+              }
+            }).color)
+            .style("opacity", "0.8")
+            .style("color", "#f5fbff");
         })
-        .on('mousemove', function () {
-          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
-        })
-        .on('mouseout', function () {
-          return tooltip.style('visibility', 'hidden');
+        .on('mouseout', function (d) {
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.airline.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", "transparent")
+            .style("color", "#00090f")
+            .style("opacity", "1");
         })
         .style('fill', airlineColors.find(function (airlineColor) {
           if (airlineColor !== undefined && mean_data[0].airline.includes(airlineColor.airline)) {
@@ -265,7 +280,6 @@ import airlineColors from './airline-colors';
         })
         .on('mouseover', function (d) {
           const selection = d3.select(this).raise();
-          console.log(this);
           selection
             .transition()
             .delay("100")
@@ -273,13 +287,25 @@ import airlineColors from './airline-colors';
             .style("stroke", "#steelblue")
             .style("opacity", "1")
             .style("stroke-width", "3");
-          
-          return tooltip.style('visibility', 'visible').text(d);
+
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", airlineColors.find(function (item) {
+              if (item !== undefined && d.includes(item.airline)) {
+                return item;
+              }
+            }).color)
+            .style("opacity", "0.8")
+            .style("color", "#f5fbff");
         })
-        .on('mousemove', function () {
-          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
-        })
-        .on('mouseout', function () {
+        .on('mouseout', function (d) {
           const selection = d3.select(this)
           selection
             .transition()
@@ -287,7 +313,19 @@ import airlineColors from './airline-colors';
             .duration("10")
             .style("opacity","0.3")
             .style("stroke-width","3");
-          return tooltip.style('visibility', 'hidden');
+
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", "transparent")
+            .style("color", "#00090f")
+            .style("opacity", "1");
         });
     }
   }
@@ -320,26 +358,27 @@ import airlineColors from './airline-colors';
       .append("tr")
       .attr('class', function(d) {
         var retVal = airlineColors.find(function (item) {
-          if (item !== undefined && d.airline.includes(item.airline)) {
+          if (item !== undefined && d.Airline.includes(item.airline)) {
             return item;
           }
         }).code;
-        console.log("retval" + retVal);
         return `${retVal}s`;
       })
+      .on('click', function (d) {
+        d3.selectAll("#pie-chart").remove();
+        d3.selectAll("#bar-chart").remove();
+        drawCancel(d.airline);
+        drawNumberDelays(d.airline);
+      })
       .on("mouseover", function (d) {
-        console.log(d.airline);
         var code;
         airlineColors.forEach(function (e) {
-          if (d.airline.includes(e.airline)) {
+          if (d.Airline.includes(e.airline)) {
             code = e.code;
           }
         })
 
         const chosenLine = d3.selectAll("." + code);
-        console.log(chosenLine);
-        // console.log(this);
-
         chosenLine.raise()
             .transition()
             .delay("100")
@@ -348,15 +387,9 @@ import airlineColors from './airline-colors';
             .style("opacity", "1")
             .style("stroke-width", "3");
 
-        // chosenLine.attr('stroke', airlineColors.find(function (item) {
-        //   if (item !== undefined && d.airline.includes(item.airline)) {
-        //     return item;
-        //   }
-        // }).color);
-
         d3.select(this)
           .style("background-color", airlineColors.find(function (item) {
-            if (item !== undefined && d.airline.includes(item.airline)) {
+            if (item !== undefined && d.Airline.includes(item.airline)) {
               return item;
             }
           }).color)
@@ -364,18 +397,14 @@ import airlineColors from './airline-colors';
           .style("color", "#f5fbff");
       })
       .on("mouseout", function (d) {
-        console.log(d.airline);
         var code;
         airlineColors.forEach(function (e) {
-          if (d.airline.includes(e.airline)) {
+          if (d.Airline.includes(e.airline)) {
             code = e.code;
           }
         })
 
         const chosenLine = d3.selectAll("." + code);
-        console.log(chosenLine);
-        // console.log(this);
-
         chosenLine.raise()
             .transition()
             .delay("100")
