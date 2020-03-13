@@ -514,7 +514,10 @@ import airlineColors from './airline-colors';
           }
         }
       });
+      // Total cancelled flights
       var totalCan = carrier + weather + nationalAir + security;
+      // Total non-cancelled flights
+      var totalNon = total - totalCan;
       // set the dimensions and margins of the graph
       var width = 450,
         height = 450,
@@ -536,6 +539,7 @@ import airlineColors from './airline-colors';
         .text(`(for ${airline})`);
 
       var data = { 'Airline': carrier, 'Weather': weather, 'National Air System': nationalAir, 'Security': security }
+      var dataM = { 'Cancelled': totalCan, 'Non-cancelled': totalNon }
 
       // set the color scale
       var color = d3.scaleOrdinal()
@@ -543,39 +547,97 @@ import airlineColors from './airline-colors';
         .range(d3.schemeTableau10);
       // Compute the position of each group on the pie:
       var pie = d3.pie()
+      .sort(null)
+      	 .startAngle(2*Math.PI)
+          .endAngle(4*Math.PI)
         .value(function (d) { return d.value; })
-      var data_ready = pie(d3.entries(data))
+      var data_ready = pie(d3.entries(data));
+      var data_ready_M = pie(d3.entries(dataM));
+
       // Now I know that group A goes from 0 degrees to x degrees and so on.
 
       // shape helper to build arcs:
       var arcGenerator = d3.arc()
-        .innerRadius(radius - radius / 3)
+        .innerRadius(radius - radius / 2)
         .outerRadius(radius)
+      var arcGeneratorM = d3.arc()
+        .innerRadius(radius/2 - radius / 4)
+        .outerRadius(radius/2)
 
       // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
       if (totalCan != 0) {
         x.style.display = "none";
         svg
           .selectAll('mySlices')
-          .data(data_ready)
+          .data(data_ready_M)
           .enter()
           .append('path')
-          .attr('d', arcGenerator)
+          .transition().delay(function(d,i) {
+            return i * 500; }).duration(500)
+            .attrTween('d', function(d) {
+                var i = d3.interpolate(d.startAngle, d.endAngle);
+                return function(t) {
+                    d.endAngle = i(t);
+                    return arcGeneratorM(d)
+                    }
+            })
           .attr('fill', function (d) { return (color(d.data.key)) })
-          .attr("stroke", "black")
-          .style("stroke-width", "2px")
+          .attr("stroke", "#CDEAF8")
+          .style("stroke-width", "1.5px")
           .style("opacity", "0.8")
 
         // Now add the annotation. Use the centroid method to get the best coordinates
         svg
           .selectAll('mySlices')
+          .data(data_ready_M)
+          .enter()
+          .append('text')
+          .attr("transform", function (d) { return "translate(" + arcGeneratorM.centroid(d) + ")"; })
+          .transition()
+          	  .delay(1000)
+          .text(function (d) { if (d.data.value != 0) return d.data.key + " " + d.data.value })
+          .style("text-anchor", "middle")
+          .style("font-size", 13)
+
+        var svg = d3.select("#cancellation")
+            .append("svg")
+            .attr("id", "pie-chart")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        svg
+          .selectAll('mySlices')
+          .data(data_ready)
+          .enter()
+          .append('path')
+          .transition().delay(function(d,i) {
+          	return i * 500; }).duration(500)
+          	.attrTween('d', function(d) {
+          		var i = d3.interpolate(d.startAngle, d.endAngle);
+          		return function(t) {
+          			d.endAngle = i(t);
+          			return arcGenerator(d)
+          			}
+          	})
+          .attr('fill', function (d) { return (color(d.data.key)) })
+          .attr("stroke", "#CDEAF8")
+          .style("stroke-width", "1.5px")
+          .style("opacity", "0.8")
+
+        svg
+          .selectAll('mySlices')
           .data(data_ready)
           .enter()
           .append('text')
-          .text(function (d) { if (d.data.value != 0) return d.data.key })
+          .transition()
+          	  .delay(1000)
+          .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
           .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
           .style("text-anchor", "middle")
-          .style("font-size", 17)
+          .style("font-size", 13)
+
       } else {
         x.style.display = "block";
       }

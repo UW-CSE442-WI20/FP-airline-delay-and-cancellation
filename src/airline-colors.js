@@ -26,7 +26,7 @@ const airlineColors = [
   },
   {
     airline: "ExpressJet",
-    color: '#990602',
+    color: '#821b01',
     code: 'EXP'
   },
   {
