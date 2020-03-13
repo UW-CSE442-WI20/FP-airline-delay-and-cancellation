@@ -13,6 +13,7 @@ import airlineColors from './airline-colors';
   var minMean = 1000000;
   var maxMean = -1000000;
   var meanList = []; // to make the list
+  var chosenAirline = "";
 
   var table, thead, tbody, rows, cells;
 
@@ -139,7 +140,7 @@ import airlineColors from './airline-colors';
         total += mean[i].mean;
       }
 
-      var temp = { airline: mean[0].airline, mean: total / mean.length };
+      var temp = { airline: mean[0].airline, mean: (total / mean.length).toFixed(3) };
       meanList.push(temp);
     })
 
@@ -239,12 +240,14 @@ import airlineColors from './airline-colors';
           drawNumberDelays(d.airline);
         })
         .on('mouseover', function (d) {
+          chosenAirline = d.airline;
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
         .on('mousemove', function () {
           return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
         })
         .on('mouseout', function () {
+          chosenAirline = "";
           return tooltip.style('visibility', 'hidden');
         })
         .style('fill', airlineColors.find(function (airlineColor) {
@@ -255,7 +258,11 @@ import airlineColors from './airline-colors';
 
       svg.append('path')
         .datum(mean_data)
-        .attr('class', 'line')
+        .attr('class', `line ${airlineColors.find(function (item) {
+          if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+            return item
+          }
+        }).code}`)
         .attr('d', line)
         .attr('stroke', airlineColors.find(function (item) {
             if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
@@ -279,6 +286,7 @@ import airlineColors from './airline-colors';
         })
         .on('mouseover', function (d) {
           const selection = d3.select(this).raise();
+          console.log(this);
           selection
             .transition()
             .delay("100")
@@ -287,12 +295,21 @@ import airlineColors from './airline-colors';
             .style("opacity", "1")
             .style("stroke-width", "3");
           // d is the airline hightlighted
+          chosenAirline = d;
+
+          // var table = document.getElementById("avg-table");
+          // for (var i = 0; i < table.rows.length; i++) {
+          //   for (var j = 0; j < table.rows[i].cells.length; j++) {
+          //     console.log(i + ' ' + j + ' ' + table.rows[i].cells[j].innerHTML);
+          //   }
+          // }
           return tooltip.style('visibility', 'visible').text(d);
         })
         .on('mousemove', function () {
           return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
         })
         .on('mouseout', function () {
+          chosenAirline = "";
           const selection = d3.select(this)
           selection
             .transition()
@@ -332,10 +349,41 @@ import airlineColors from './airline-colors';
       .enter()
       .append("tr")
       .on("mouseover", function (d) {
+        console.log(d.airline);
+        var code;
+        airlineColors.forEach(function (e) {
+          if (d.airline.includes(e.airline)) {
+            code = e.code;
+          }
+        })
+
+        const chosenLine = d3.selectAll("." + code);
+        console.log(chosenLine);
+        // console.log(this);
+
+        chosenLine.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("stroke", "#steelblue")
+            .style("opacity", "1")
+            .style("stroke-width", "3");
+
+        // chosenLine.attr('stroke', airlineColors.find(function (item) {
+        //   if (item !== undefined && d.airline.includes(item.airline)) {
+        //     return item;
+        //   }
+        // }).color);
+
         d3.select(this)
-          .style("background-color", "orange");
+          .style("background-color", airlineColors.find(function (item) {
+            if (item !== undefined && d.airline.includes(item.airline)) {
+              return item;
+            }
+          }).color);
       })
       .on("mouseout", function (d) {
+        chosenAirline = "";
         d3.select(this)
           .style("background-color", "transparent");
       });
@@ -368,7 +416,7 @@ import airlineColors from './airline-colors';
         }
       })
 
-      var temp = { airline: airline, month: (i + 1), mean: (total / count) };
+      var temp = { airline: airline, month: (i + 1), mean: (total / count)};
       if (!isNaN(temp.mean)) {
         mean.push(temp);
       }
@@ -378,7 +426,7 @@ import airlineColors from './airline-colors';
 
   // Cancellation Pie Chart
   function drawCancel(airline) {
-    console.log(airline);
+    // console.log(airline);
     showData("cancellationSection");
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     var x = document.getElementById("no-cancel");
