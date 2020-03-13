@@ -13,6 +13,7 @@ import airlineColors from './airline-colors';
   var minMean = 1000000;
   var maxMean = -1000000;
   var meanList = []; // to make the list
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
   var table, thead, tbody, rows, cells;
 
@@ -150,7 +151,7 @@ import airlineColors from './airline-colors';
       .range([h, 0]);
 
     var xAxis = d3.axisBottom(x)
-      .ticks(10);
+      .tickFormat(function(d,i){ return months[i] });
 
     var yAxis = d3.axisLeft(y)
       .ticks(10);
@@ -177,7 +178,7 @@ import airlineColors from './airline-colors';
         .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
         .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
         .attr("stroke-width", 2)
-        .attr("stroke", "black")
+        .attr("stroke", "black");
 
     drawList();
     airlineUnique.forEach(function (d) {
