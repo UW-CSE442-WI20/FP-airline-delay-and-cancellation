@@ -728,8 +728,8 @@ import airlineColors from './airline-colors';
       }
     })
 
-    var countArr = new Array(24);
-    for (var i = 0; i < 24; i++) {
+    var countArr = new Array(25);
+    for (var i = 0; i < 25; i++) {
       countArr[i] = 0;
     }
 
@@ -738,7 +738,7 @@ import airlineColors from './airline-colors';
     })
 
     var countByTime = [];
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < 25; i++) {
       var temp = { time: i, count: countArr[i] };
       countByTime.push(temp);
     }
@@ -747,13 +747,13 @@ import airlineColors from './airline-colors';
 
     // set the dimensions and margins of the graph
     var margin = { top: 20, right: 20, bottom: 30, left: 50 },
-      width = 960 - margin.left - margin.right,
+      width = 960 - margin.left - margin.right + 10,
       height = 500 - margin.top - margin.bottom;
 
     // set the ranges
     var x = d3.scaleBand()
       .range([0, width])
-      .padding(0.1);
+      .padding(0.2);
     var y = d3.scaleLinear()
       .range([height, 0]);
 
@@ -811,7 +811,7 @@ import airlineColors from './airline-colors';
           ? highlightColor : barColor
       })
       .style("opacity", "0.7")
-      .attr("x", d => { return x(d.time) - 18.5; })
+      .attr("x", d => { return x(d.time) + 18.5; })
       .attr("width", x.bandwidth())
       .attr("y", d => { return height; })
       .attr("height", 0)
@@ -829,7 +829,7 @@ import airlineColors from './airline-colors';
       .append("text")
       .attr("class", "label")
       .style("display", d => { return d.count === 0 ? "none" : null; })
-      .attr("x", (d => { return x(d.time) + (x.bandwidth() / 2) - 28.5; }))
+      .attr("x", (d => { return (d.count > 9) ? x(d.time) + 18.5 + (x.bandwidth() / 8) : x(d.time) + 30; }))
       .style("fill", d => {
         return d.count === d3.max(countByTime, d => { return d.count; })
           ? highlightColor : greyColor
