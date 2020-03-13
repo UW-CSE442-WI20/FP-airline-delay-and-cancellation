@@ -133,7 +133,7 @@ import airlineColors from './airline-colors';
         total += mean[i].mean;
       }
 
-      var temp = { Airline: mean[0].airline, "Average Delay Time (mins)": (total / mean.length).toFixed(3) };
+      var temp = { Airline: mean[0].airline, "Overall Average Delay Time (mins)": (total / mean.length).toFixed(3) };
       meanList.push(temp);
     })
 
@@ -173,7 +173,7 @@ import airlineColors from './airline-colors';
         "translate(" + (w / 2) + " ," +
         (h + margin.top) + ")")
       .style("text-anchor", "middle")
-      .text("Hour");
+      .text("Month");
 
     svg.append('g')
       .attr('class', 'y axes')
@@ -278,10 +278,6 @@ import airlineColors from './airline-colors';
             }
           }).color
         );
-
-      // console.log('begin');
-      // console.log(mean_data);
-      // console.log('end');
 
       svg.selectAll(".line")
         .data(airlineUnique)
@@ -626,7 +622,6 @@ import airlineColors from './airline-colors';
     // add the y Axis
     svg.append("g")
       .call(d3.axisLeft(y));
-
     // text label for the y axis
     svg.append("text")
       .attr("transform", "rotate(-90)")
@@ -650,7 +645,7 @@ import airlineColors from './airline-colors';
           ? highlightColor : barColor
       })
       .style("opacity", "0.7")
-      .attr("x", d => { return x(d.time); })
+      .attr("x", d => { return x(d.time) - 18.5; })
       .attr("width", x.bandwidth())
       .attr("y", d => { return height; })
       .attr("height", 0)
@@ -668,7 +663,7 @@ import airlineColors from './airline-colors';
       .append("text")
       .attr("class", "label")
       .style("display", d => { return d.count === 0 ? "none" : null; })
-      .attr("x", (d => { return x(d.time) + (x.bandwidth() / 2) - 10; }))
+      .attr("x", (d => { return x(d.time) + (x.bandwidth() / 2) - 28.5; }))
       .style("fill", d => {
         return d.count === d3.max(countByTime, d => { return d.count; })
           ? highlightColor : greyColor
