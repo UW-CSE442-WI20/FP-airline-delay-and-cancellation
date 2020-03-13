@@ -207,12 +207,10 @@ import airlineColors from './airline-colors';
         .attr('cx', function (d, i) {
           return x(d.month);
         })
-        .attr('r', 3)
-        .on('click', function (d) {
-          d3.selectAll("#pie-chart").remove();
-          d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline);
-          drawNumberDelays(d.airline);
+        .attr('r', 4)
+        .style('fill', '#4e79a7')
+        .on('mouseover', function (d) {
+          return tooltip.style('visibility', 'visible').text(d.airline);
         })
         .on('mouseover', function (d) {
           var code;
@@ -622,9 +620,9 @@ import airlineColors from './airline-colors';
       .style("text-anchor", "middle")
       .text("Number of Delayed Flights");
 
-    var greyColor = "#898989";
-    var barColor = "#BB998C";
-    var highlightColor = "#EEC9BC";
+    var greyColor = "#bab0ab";
+    var barColor = "#bab0ab";
+    var highlightColor = "#e15658";
 
     svg.selectAll(".bar")
       .data(countByTime)
@@ -635,6 +633,7 @@ import airlineColors from './airline-colors';
         return d.count === d3.max(countByTime, d => { return d.count; })
           ? highlightColor : barColor
       })
+      .style("opacity", "0.7")
       .attr("x", d => { return x(d.time); })
       .attr("width", x.bandwidth())
       .attr("y", d => { return height; })
