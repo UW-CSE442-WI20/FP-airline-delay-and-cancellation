@@ -13,7 +13,7 @@ import airlineColors from './airline-colors';
   var minMean = 1000000;
   var maxMean = -1000000;
   var meanList = []; // to make the list
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUNE', 'JULY', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
   var table, thead, tbody, rows, cells;
 
@@ -151,7 +151,7 @@ import airlineColors from './airline-colors';
       .range([h, 0]);
 
     var xAxis = d3.axisBottom(x)
-      .tickFormat(function(d,i){ return months[i] });
+      .tickFormat(function(d, i){ return months[i] });
 
     var yAxis = d3.axisLeft(y)
       .ticks(10);
@@ -173,7 +173,7 @@ import airlineColors from './airline-colors';
         "translate(" + (w / 2) + " ," +
         (h + margin.top) + ")")
       .style("text-anchor", "middle")
-      .text("Hour");
+      .text("Month in Year 2018");
 
     svg.append('g')
       .attr('class', 'y axes')
@@ -185,15 +185,15 @@ import airlineColors from './airline-colors';
       .attr("x", 0 - (h / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .text("Average Delay Time (min)");
+      .text("Average Delay Time (mins)");
 
-    svg.append("line")
-        .attr("x1", 0)
-        .attr("x2", 545)
-        .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
-        .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
-        .attr("stroke-width", 2)
-        .attr("stroke", "black");
+    // svg.append("line")
+    //     .attr("x1", 0)
+    //     .attr("x2", 545)
+    //     .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+    //     .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+    //     .attr("stroke-width", 2)
+    //     .attr("stroke", "black");
 
     drawList();
     airlineUnique.forEach(function (d) {
@@ -224,6 +224,13 @@ import airlineColors from './airline-colors';
         })
         .attr('r', 4)
         .style('fill', '#4e79a7')
+        .on('click', function (d) {
+          // console.log(d);
+          d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#bar-chart").remove();
+          drawCancel(d.airline);
+          drawNumberDelays(d.airline);
+        })
         .on('mouseover', function (d) {
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
@@ -244,6 +251,15 @@ import airlineColors from './airline-colors';
             }).color)
             .style("opacity", "0.8")
             .style("color", "#f5fbff");
+
+          const chosenDots = d3.selectAll("." + code);
+          chosenDots.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("stroke", "#steelblue")
+            .style("opacity", "1")
+            .style("stroke-width", "3");
         })
         .on('mouseout', function (d) {
           var code;
@@ -257,6 +273,14 @@ import airlineColors from './airline-colors';
             .style("background-color", "transparent")
             .style("color", "#00090f")
             .style("opacity", "1");
+
+          const chosenDots = d3.selectAll("." + code);
+          chosenDots.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("opacity","0.3")
+            .style("stroke-width","3");
         })
         .style('fill', airlineColors.find(function (airlineColor) {
           if (airlineColor !== undefined && mean_data[0].airline.includes(airlineColor.airline)) {
@@ -379,7 +403,6 @@ import airlineColors from './airline-colors';
         return `${retVal}s`;
       })
       .on('click', function (d) {
-        console.log("hello");
         d3.selectAll("#pie-chart").remove();
         d3.selectAll("#bar-chart").remove();
         drawCancel(d.Airline);
@@ -509,6 +532,9 @@ import airlineColors from './airline-colors';
         .append("g")
         .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+      d3.select("#airlinetext")
+        .text(`(for ${airline})`);
+
       var data = { 'Airline': carrier, 'Weather': weather, 'National Air System': nationalAir, 'Security': security }
 
       // set the color scale
@@ -559,6 +585,10 @@ import airlineColors from './airline-colors';
   // draw bar graph
   function drawNumberDelays(airline) {
     showData("delaysSection");
+
+    d3.select("#airlinetext2")
+        .text(`(for ${airline})`);
+
     var delayedByAirline = [];
     flightFiltered.forEach(function (d) {
       if (d.Airline === airline && d["Departure Delay Time (mins)"] > 0) {
@@ -584,7 +614,7 @@ import airlineColors from './airline-colors';
     // console.log(countByTime);
 
     // set the dimensions and margins of the graph
-    var margin = { top: 20, right: 20, bottom: 30, left: 40 },
+    var margin = { top: 20, right: 20, bottom: 30, left: 50 },
       width = 960 - margin.left - margin.right,
       height = 500 - margin.top - margin.bottom;
 
