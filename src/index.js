@@ -512,7 +512,7 @@ import airlineColors from './airline-colors';
         margin = 40;
 
       // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
-      var radius = Math.min(width, height) / 2 - margin;
+      var radius = Math.min(width - 100 , height - 100) / 2 - margin;
 
       // append the svg object to the div called 'cancellation'
       var svg = d3.select("#cancellation")
