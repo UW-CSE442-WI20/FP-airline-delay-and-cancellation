@@ -71,7 +71,7 @@ const airlineColors = [
   },
   {
     airline: "Virgin",
-    color: '#E1163C',
+    color: '#df166a',
     code: 'VIR'
   },
   {

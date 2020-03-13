@@ -13,7 +13,6 @@ import airlineColors from './airline-colors';
   var minMean = 1000000;
   var maxMean = -1000000;
   var meanList = []; // to make the list
-  var chosenAirline = "";
 
   var table, thead, tbody, rows, cells;
 
@@ -102,12 +101,6 @@ import airlineColors from './airline-colors';
     d3.selectAll("#pie-chart").remove();
     d3.selectAll("#bar-chart").remove();
     d3.selectAll("#avg-table").remove();
-    // var tableRef = document.getElementById("table-chart");
-    // if (typeof document.getElementsByTagName('thead')[0] === "object") {
-    //   console.log("hiu")
-    //   tableRef.removeChild(document.getElementsByTagName('thead')[0]);
-    //   tableRef.removeChild(document.getElementsByTagName('tbody')[0]);
-    // }
 
     drawDelayedBars();
   }
@@ -127,6 +120,7 @@ import airlineColors from './airline-colors';
     // get all the airlines
     airlineUnique = [...new Set(airlines)];
 
+    meanList = [];
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
       mean.forEach(function(d) {
@@ -240,14 +234,12 @@ import airlineColors from './airline-colors';
           drawNumberDelays(d.airline);
         })
         .on('mouseover', function (d) {
-          chosenAirline = d.airline;
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
         .on('mousemove', function () {
           return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
         })
         .on('mouseout', function () {
-          chosenAirline = "";
           return tooltip.style('visibility', 'hidden');
         })
         .style('fill', airlineColors.find(function (airlineColor) {
@@ -294,22 +286,13 @@ import airlineColors from './airline-colors';
             .style("stroke", "#steelblue")
             .style("opacity", "1")
             .style("stroke-width", "3");
-          // d is the airline hightlighted
-          chosenAirline = d;
-
-          // var table = document.getElementById("avg-table");
-          // for (var i = 0; i < table.rows.length; i++) {
-          //   for (var j = 0; j < table.rows[i].cells.length; j++) {
-          //     console.log(i + ' ' + j + ' ' + table.rows[i].cells[j].innerHTML);
-          //   }
-          // }
+          
           return tooltip.style('visibility', 'visible').text(d);
         })
         .on('mousemove', function () {
           return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
         })
         .on('mouseout', function () {
-          chosenAirline = "";
           const selection = d3.select(this)
           selection
             .transition()
@@ -348,6 +331,15 @@ import airlineColors from './airline-colors';
       .data(meanList)
       .enter()
       .append("tr")
+      .attr('class', function(d) {
+        var retVal = airlineColors.find(function (item) {
+          if (item !== undefined && d.airline.includes(item.airline)) {
+            return item;
+          }
+        }).code;
+        console.log("retval" + retVal);
+        return `${retVal}s`;
+      })
       .on("mouseover", function (d) {
         console.log(d.airline);
         var code;
@@ -380,12 +372,34 @@ import airlineColors from './airline-colors';
             if (item !== undefined && d.airline.includes(item.airline)) {
               return item;
             }
-          }).color);
+          }).color)
+          .style("opacity", "0.8")
+          .style("color", "#f5fbff");
       })
       .on("mouseout", function (d) {
-        chosenAirline = "";
+        console.log(d.airline);
+        var code;
+        airlineColors.forEach(function (e) {
+          if (d.airline.includes(e.airline)) {
+            code = e.code;
+          }
+        })
+
+        const chosenLine = d3.selectAll("." + code);
+        console.log(chosenLine);
+        // console.log(this);
+
+        chosenLine.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("opacity","0.3")
+            .style("stroke-width","3");
+
         d3.select(this)
-          .style("background-color", "transparent");
+          .style("background-color", "transparent")
+          .style("color", "#00090f")
+          .style("opacity", "1");
       });
 
       cells = rows.selectAll("td")
@@ -493,7 +507,7 @@ import airlineColors from './airline-colors';
           .attr('fill', function (d) { return (color(d.data.key)) })
           .attr("stroke", "black")
           .style("stroke-width", "2px")
-          .style("opacity", 0.7)
+          .style("opacity", "0.8")
 
         // Now add the annotation. Use the centroid method to get the best coordinates
         svg
