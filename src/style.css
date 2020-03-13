@@ -98,20 +98,28 @@ img {
 }
 
 #table {
-  padding-top: 50px;
   width: 545px;
   height: 400px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 table {
   width: 545px;
-  height: 400px;
+  max-height: 400px;
+  margin-top: -20px
 }
 
 table, th, td {
   border: 1px solid black;
   border-collapse: collapse;
 }
+
+td {
+  min-height: 30px;
+  height: 50px;
+}
+
 
 
 
