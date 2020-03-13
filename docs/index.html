@@ -2,45 +2,73 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Airline Delay and Cancellation</title>
-    <link rel="stylesheet" type="text/css" href="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/style.09620453.css">
+    <title>Airline Delays and Cancellations</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://rawgit.com/farzher/fuzzysort/master/fuzzysort.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Spartan:300,400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/style.cbc6fb6a.css">
+    <script src="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.a3461f68.js"></script>
   </head>
   <body>
     <section class="main-banner">
-        <h1>Airline Delay and Cancellation</h1>
+        <h1>Airline Delays and Cancellations</h1>
         <div class="image">
-<!--            <img src="../img/home-airplane.png" alt="">-->
+            <img src="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/ezgif.com-video-to-gif.7b5b102b.gif" alt="">
         </div>
     </section>
-    <section>
-    <div>
-      <div class="text">Where from?</div>
-      <form autocomplete="off" action="/action_page.php">
-        <div class="autocomplete" style="width:300px;">
-          <input id="originInput" type="text" name="originCity" placeholder="Origin City">
-        </div>
-      </form>
-      <div class="text">Where to?</div>
-      <form autocomplete="off" action="/action_page.php">
-        <div class="autocomplete" style="width:300px;">
-          <input id="destInput" type="text" name="destCity" placeholder="Destination City">
-        </div>
-      </form>
-    </div>
+
+    <section id="about">
+        <p>
+            Welcome to our website! We created an interactive website to help you understand which airlines have the most 
+            common delayed and cancelled flights of 2018. To begin, enter origin and destination locations in each of the 
+            boxes below to see a line graph of the different airlines and their average delay times.
+        </p>
     </section>
-    <section></section>
-    <div class="text">Line Graph</div>
-    <div id="chart"></div>
-    <div class="text">Cancellation Reasons</div>
-    <div id="cancellation">
-        <div id="no-cancel" style="display: none;">
-            No cancellation record for this airline.
+    <section id="searchInput">
+        <div>
+            <div class="labelText">Where from?</div>
+            <form autocomplete="off" action="/action_page.php">
+                <div class="autocomplete" style="width:300px;">
+                    <input id="originInput" type="text" name="originCity" placeholder="Origin City">
+                </div>
+            </form>
         </div>
-    </div>
-    <script src="https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.53dc2075.js"></script>
-    
+        <div>
+            <div class="labelText">Where to?</div>
+            <form autocomplete="off" action="/action_page.php">
+                <div class="autocomplete" style="width:300px;">
+                    <input id="destInput" type="text" name="destCity" placeholder="Destination City">
+                </div>
+            </form>
+        </div>
+    </section>
+    <section id="averageSection" class="data hidden">
+        <div class="text">Average Delay Time per Month</div>
+        <div class="visuals">
+            <div id="chart"></div>
+            <div id="table"></div>
+        </div>
+    </section>
+
+    <section id="cancellationSection" class="data hidden">
+        <div class="text"> Number of Cancellations</div>
+        <div id="airlinetext"></div>
+        <div id="cancellation">
+            <div id="no-cancel" style="display: none;">
+                No cancellation record for this airline.
+            </div>
+        </div>
+    </section>
+
+    <section class="data hidden" id="delaysSection">
+        <div class="text">Number of Delays per Hour</div>
+        <div id="airlinetext2"></div>
+        <div id="delays"></div>
+    </section>
+
+<!--    <section id="footer">-->
+<!--        <h1>Created By</h1>-->
+<!--    </section>-->
   </body>
 </html>

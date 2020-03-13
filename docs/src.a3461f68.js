@@ -28630,7 +28630,89 @@ Object.keys(_d3Zoom).forEach(function (key) {
     }
   });
 });
-},{"./dist/package.js":"pT13","d3-array":"K0bd","d3-axis":"mp0m","d3-brush":"tkh5","d3-chord":"Iy8J","d3-collection":"S3hn","d3-color":"Peej","d3-contour":"SiBy","d3-dispatch":"D3zY","d3-drag":"kkdU","d3-dsv":"EC2w","d3-ease":"pJ11","d3-fetch":"grWT","d3-force":"oYRE","d3-format":"VuZR","d3-geo":"Ah6W","d3-hierarchy":"Kps6","d3-interpolate":"k9aH","d3-path":"OTyq","d3-polygon":"H15P","d3-quadtree":"lUbg","d3-random":"Gz2j","d3-scale":"zL2z","d3-scale-chromatic":"ado2","d3-selection":"ysDv","d3-shape":"maww","d3-time":"hQYG","d3-time-format":"UYpZ","d3-timer":"rdzS","d3-transition":"UqVV","d3-voronoi":"rLIC","d3-zoom":"MHdZ"}],"GlPB":[function(require,module,exports) {
+},{"./dist/package.js":"pT13","d3-array":"K0bd","d3-axis":"mp0m","d3-brush":"tkh5","d3-chord":"Iy8J","d3-collection":"S3hn","d3-color":"Peej","d3-contour":"SiBy","d3-dispatch":"D3zY","d3-drag":"kkdU","d3-dsv":"EC2w","d3-ease":"pJ11","d3-fetch":"grWT","d3-force":"oYRE","d3-format":"VuZR","d3-geo":"Ah6W","d3-hierarchy":"Kps6","d3-interpolate":"k9aH","d3-path":"OTyq","d3-polygon":"H15P","d3-quadtree":"lUbg","d3-random":"Gz2j","d3-scale":"zL2z","d3-scale-chromatic":"ado2","d3-selection":"ysDv","d3-shape":"maww","d3-time":"hQYG","d3-time-format":"UYpZ","d3-timer":"rdzS","d3-transition":"UqVV","d3-voronoi":"rLIC","d3-zoom":"MHdZ"}],"Xw4n":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var airlineColors = [{
+  airline: "Endeavor",
+  color: '#020F28',
+  code: 'EDV'
+}, {
+  airline: "American",
+  color: '#178AC5',
+  code: 'AAL'
+}, {
+  airline: "Alaska",
+  color: '#01426A',
+  code: 'ASA'
+}, {
+  airline: "JetBlue",
+  color: '#8DC6E8',
+  code: 'JBU'
+}, {
+  airline: "Delta",
+  color: '#E01933',
+  code: 'DAL'
+}, {
+  airline: "ExpressJet",
+  color: '#821b01',
+  code: 'EXP'
+}, {
+  airline: "Frontier",
+  color: '#006643',
+  code: 'FRN'
+}, {
+  airline: "Allegiant",
+  color: '#FBCE20',
+  code: 'ALG'
+}, {
+  airline: "Hawaiian",
+  color: '#932E89',
+  code: "HWI"
+}, {
+  airline: "Envoy",
+  color: '#AF1E2D',
+  code: 'ENY'
+}, {
+  airline: "Spirit",
+  color: '#decd00',
+  code: 'SPI'
+}, {
+  airline: "PSA",
+  color: '#3F99C7',
+  code: 'PSA'
+}, {
+  airline: "SkyWest",
+  color: '#978EF5',
+  code: 'SKY'
+}, {
+  airline: "United",
+  color: '#1D589C',
+  code: 'UNI'
+}, {
+  airline: "Virgin",
+  color: '#df166a',
+  code: 'VIR'
+}, {
+  airline: "Southwest",
+  color: '#FFBF27',
+  code: 'SOU'
+}, {
+  airline: "Mesa",
+  color: '#000000',
+  code: 'MES'
+}, {
+  airline: "Republic",
+  color: '#BCBDC0',
+  code: 'REP'
+}];
+var _default = airlineColors;
+exports.default = _default;
+},{}],"GlPB":[function(require,module,exports) {
 var define;
 /*
 WHAT: SublimeText-like Fuzzy Search
@@ -29242,6 +29324,10 @@ return fuzzysortNew()
 
 var _d = require("d3");
 
+var _airlineColors = _interopRequireDefault(require("./airline-colors"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -29264,15 +29350,29 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
   var flightFiltered = []; // one origin, one dest
 
+  var minMean = 1000000;
+  var maxMean = -1000000;
+  var meanList = []; // to make the list
+
+  var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUNE', 'JULY', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  var table, thead, tbody, rows, cells;
+
   function init() {
     var d3 = require('d3');
 
     var fuzzysort = require('fuzzysort');
 
-    loadAirportData(); // for search bars
+    loadAirportData();
+    autocomplete(document.getElementById("originInput"), airportList);
+  }
 
-    autocomplete(document.getElementById("originInput"), airportList); // autocomplete(document.getElementById("destInput"), airportList);
-  } // load origin airport data
+  function showData(id) {
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  function hideData(id) {
+    document.getElementById(id).classList.add("hidden");
+  } // load list of airports data
 
 
   function loadAirportData() {
@@ -29281,13 +29381,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         airportList.push(d.City + ' (' + d.Airport + ')');
       });
     });
-  }
+  } // load data according to origin airport chosen
+
 
   function loadOrigin() {
     var origin = document.getElementById('originInput').value;
     var ori = origin.substring(origin.length - 4, origin.length - 1); // console.log('origin ' + ori);
 
     d3.csv(ori + '.csv').then(function (d) {
+      // console.log('loading');
       var dests = [];
       destList = [];
       flightList = [];
@@ -29301,23 +29403,22 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           var temp = e.substring(e.length - 4, e.length - 1);
 
           if (f === temp) {
-            // console.log('here');
             destList.push(e);
           }
         });
-      }); // console.log('begin');
-      // console.log(destList);
-      // console.log('end');
-
+      });
       autocomplete(document.getElementById("destInput"), destList);
     });
-  }
+    document.getElementById('destInput').value = '';
+    hideData("averageSection");
+    hideData("cancellationSection");
+    hideData("delaysSection");
+  } // load data after destination is chosen
+
 
   function loadDestination() {
     var dest = document.getElementById('destInput').value;
-    dest = dest.substring(dest.length - 4, dest.length - 1); // console.log(dest);
-    // console.log(flightList[0]);
-
+    dest = dest.substring(dest.length - 4, dest.length - 1);
     flightFiltered = [];
     flightList.forEach(function (d) {
       if (d.Destination === dest) {
@@ -29327,20 +29428,43 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
+    d3.selectAll("#bar-chart").remove();
+    d3.selectAll("#avg-table").remove();
     drawDelayedBars();
   } // drawing main line graph
 
 
   function drawDelayedBars() {
+    showData("averageSection");
     var flightYear = [];
     var airlines = []; // include all the flights after year filter has been set
 
-    flightList.forEach(function (d) {
+    flightFiltered.forEach(function (d) {
       flightYear.push(d);
       airlines.push(d.Airline);
     }); // get all the airlines
 
-    airlineUnique = _toConsumableArray(new Set(airlines)); // SET UP SVG
+    airlineUnique = _toConsumableArray(new Set(airlines));
+    meanList = [];
+    airlineUnique.forEach(function (d) {
+      var mean = getMean(d, flightYear);
+      mean.forEach(function (d) {
+        // console.log(+d.mean);
+        minMean = Math.min(+minMean, +d.mean);
+        maxMean = Math.max(+maxMean, +d.mean);
+      });
+      var total = 0;
+
+      for (var i = 0; i < mean.length; i++) {
+        total += mean[i].mean;
+      }
+
+      var temp = {
+        Airline: mean[0].airline,
+        "Overall Average Delay Time (mins)": (total / mean.length).toFixed(3)
+      };
+      meanList.push(temp);
+    }); // SET UP SVG
 
     var margin = {
       top: 50,
@@ -29351,16 +29475,26 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         w = 630 - (margin.left + margin.right),
         h = 500 - (margin.top + margin.bottom);
     var x = d3.scaleLinear().domain([1, 12]).rangeRound([0, w]);
-    var y = d3.scaleLinear().domain([-60, 90]).range([h, 0]);
-    var xAxis = d3.axisBottom(x).ticks(10);
+    var y = d3.scaleLinear().domain([minMean - 10, maxMean + 10]).range([h, 0]);
+    var xAxis = d3.axisBottom(x).tickFormat(function (d, i) {
+      return months[i];
+    });
     var yAxis = d3.axisLeft(y).ticks(10);
-    var xGrid = d3.axisBottom(x).ticks(5).tickSize(-h, 0, 0).tickFormat('');
-    var yGrid = d3.axisLeft(y).ticks(5).tickSize(-w, 0, 0).tickFormat('');
     var svg = d3.select('#chart').append('svg').attr("id", "line-chart").attr("width", w + margin.left + margin.right).attr("height", h + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-    svg.append('g').attr('class', 'x axes').attr('transform', 'translate(0,' + h + ')').call(xAxis);
-    svg.append('g').attr('class', 'y axes').call(yAxis);
-    svg.append('g').attr('class', 'grid').attr('transform', 'translate(0,' + h + ')').call(xGrid);
-    svg.append('g').attr('class', 'y-grid').call(yGrid);
+    svg.append('g').attr('class', 'x axes').attr('transform', 'translate(0,' + h + ')').call(xAxis); // text label for the x axis
+
+    svg.append("text").attr("transform", "translate(" + w / 2 + " ," + (h + margin.top) + ")").style("text-anchor", "middle").text("Month");
+    svg.append('g').attr('class', 'y axes').call(yAxis); // text label for the y axis
+
+    svg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left).attr("x", 0 - h / 2).attr("dy", "1em").style("text-anchor", "middle").text("Average Delay Time (mins)"); // svg.append("line")
+    //     .attr("x1", 0)
+    //     .attr("x2", 545)
+    //     .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+    //     .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+    //     .attr("stroke-width", 2)
+    //     .attr("stroke", "black");
+
+    drawList();
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
       plotLine(mean, d);
@@ -29372,24 +29506,161 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }).y(function (d) {
         return y(d.mean);
       });
-      var tooltip = d3.select('#chart').append('div').style('position', 'absolute').style('z-index', '10').style('visibility', 'hidden').text('');
-      svg.append('path').datum(mean_data).attr('class', 'line').attr('d', line);
       svg.selectAll('.dot').data(mean_data).enter().append('circle').attr('class', cirClass).attr('cy', function (d) {
         return y(d.mean);
       }).attr('cx', function (d, i) {
         return x(d.month);
-      }).attr('r', 4).style('fill', 'blue').on('mouseover', function (d) {
-        return tooltip.style('visibility', 'visible').text(d.airline);
-      }).on('mousemove', function () {
-        return tooltip.style('top', event.pageY - 10 + 'px').style('left', event.pageX + 10 + 'px');
-      }).on('mouseout', function () {
-        return tooltip.style('visibility', 'hidden');
-      }).on('click', function (d) {
-        // Delete old svg before drawing a new one
+      }).attr('r', 4).style('fill', '#4e79a7').on('click', function (d) {
+        // console.log(d);
         d3.selectAll("#pie-chart").remove();
-        drawCancel(d.airline, mean_data);
+        d3.selectAll("#bar-chart").remove();
+        drawCancel(d.airline);
+        drawNumberDelays(d.airline);
+      }).on('mouseover', function (d) {
+        return tooltip.style('visibility', 'visible').text(d.airline);
+      }).on('mouseover', function (d) {
+        var code;
+
+        _airlineColors.default.forEach(function (e) {
+          if (d.airline.includes(e.airline)) {
+            code = e.code;
+          }
+        });
+
+        var chosenLine = d3.selectAll("." + code + "s");
+        chosenLine.style("background-color", _airlineColors.default.find(function (item) {
+          if (item !== undefined && d.airline.includes(item.airline)) {
+            return item;
+          }
+        }).color).style("opacity", "0.8").style("color", "#f5fbff");
+        var chosenDots = d3.selectAll("." + code);
+        chosenDots.raise().transition().delay("100").duration("10").style("stroke", "#steelblue").style("opacity", "1").style("stroke-width", "3");
+      }).on('mouseout', function (d) {
+        var code;
+
+        _airlineColors.default.forEach(function (e) {
+          if (d.airline.includes(e.airline)) {
+            code = e.code;
+          }
+        });
+
+        var chosenLine = d3.selectAll("." + code + "s");
+        chosenLine.style("background-color", "transparent").style("color", "#00090f").style("opacity", "1");
+        var chosenDots = d3.selectAll("." + code);
+        chosenDots.raise().transition().delay("100").duration("10").style("opacity", "0.3").style("stroke-width", "3");
+      }).style('fill', _airlineColors.default.find(function (airlineColor) {
+        if (airlineColor !== undefined && mean_data[0].airline.includes(airlineColor.airline)) {
+          return airlineColor;
+        }
+      }).color);
+      svg.append('path').datum(mean_data).attr('class', "line ".concat(_airlineColors.default.find(function (item) {
+        if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+          return item;
+        }
+      }).code)).attr('d', line).attr('stroke', _airlineColors.default.find(function (item) {
+        if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+          return item;
+        }
+      }).color);
+      svg.selectAll(".line").data(airlineUnique).on('click', function (d) {
+        // console.log(d);
+        d3.selectAll("#pie-chart").remove();
+        d3.selectAll("#bar-chart").remove();
+        drawCancel(d);
+        drawNumberDelays(d);
+      }).on('mouseover', function (d) {
+        var selection = d3.select(this).raise();
+        selection.transition().delay("100").duration("10").style("stroke", "#steelblue").style("opacity", "1").style("stroke-width", "3");
+        var code;
+
+        _airlineColors.default.forEach(function (e) {
+          if (d.includes(e.airline)) {
+            code = e.code;
+          }
+        });
+
+        var chosenLine = d3.selectAll("." + code + "s");
+        chosenLine.style("background-color", _airlineColors.default.find(function (item) {
+          if (item !== undefined && d.includes(item.airline)) {
+            return item;
+          }
+        }).color).style("opacity", "0.8").style("color", "#f5fbff");
+      }).on('mouseout', function (d) {
+        var selection = d3.select(this);
+        selection.transition().delay("100").duration("10").style("opacity", "0.3").style("stroke-width", "3");
+        var code;
+
+        _airlineColors.default.forEach(function (e) {
+          if (d.includes(e.airline)) {
+            code = e.code;
+          }
+        });
+
+        var chosenLine = d3.selectAll("." + code + "s");
+        chosenLine.style("background-color", "transparent").style("color", "#00090f").style("opacity", "1");
       });
     }
+  }
+
+  function drawList() {
+    var svg = d3.select("#table").append("svg").attr("height", 1).attr("width", 1);
+    table = d3.select("#table").append("table").attr("id", "avg-table").attr("class", "table table-condensed table-striped"), thead = table.append("thead"), tbody = table.append("tbody");
+    var columns = Object.keys(meanList[0]);
+    var header = thead.append("tr").selectAll("th").data(columns).enter().append("th").text(function (d) {
+      return d;
+    });
+    rows = tbody.selectAll("tr").data(meanList).enter().append("tr").attr('class', function (d) {
+      var retVal = _airlineColors.default.find(function (item) {
+        if (item !== undefined && d.Airline.includes(item.airline)) {
+          return item;
+        }
+      }).code;
+
+      return "".concat(retVal, "s");
+    }).on('click', function (d) {
+      d3.selectAll("#pie-chart").remove();
+      d3.selectAll("#bar-chart").remove();
+      drawCancel(d.Airline);
+      drawNumberDelays(d.Airline);
+    }).on("mouseover", function (d) {
+      var code;
+
+      _airlineColors.default.forEach(function (e) {
+        if (d.Airline.includes(e.airline)) {
+          code = e.code;
+        }
+      });
+
+      var chosenLine = d3.selectAll("." + code);
+      chosenLine.raise().transition().delay("100").duration("10").style("stroke", "#steelblue").style("opacity", "1").style("stroke-width", "3");
+      d3.select(this).style("background-color", _airlineColors.default.find(function (item) {
+        if (item !== undefined && d.Airline.includes(item.airline)) {
+          return item;
+        }
+      }).color).style("opacity", "0.8").style("color", "#f5fbff");
+    }).on("mouseout", function (d) {
+      var code;
+
+      _airlineColors.default.forEach(function (e) {
+        if (d.Airline.includes(e.airline)) {
+          code = e.code;
+        }
+      });
+
+      var chosenLine = d3.selectAll("." + code);
+      chosenLine.raise().transition().delay("100").duration("10").style("opacity", "0.3").style("stroke-width", "3");
+      d3.select(this).style("background-color", "transparent").style("color", "#00090f").style("opacity", "1");
+    });
+    cells = rows.selectAll("td").data(function (row) {
+      return columns.map(function (d, i) {
+        return {
+          i: d,
+          value: row[d]
+        };
+      });
+    }).enter().append("td").html(function (d) {
+      return d.value;
+    });
   }
 
   function getMean(airline, flightYear) {
@@ -29422,7 +29693,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   } // Cancellation Pie Chart
 
 
-  function drawCancel(airline, mean) {
+  function drawCancel(airline) {
+    // console.log(airline);
+    showData("cancellationSection");
     var total = 0,
         carrier = 0,
         weather = 0,
@@ -29442,50 +29715,236 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             if (d['Cancellation Reason'] == 'Security') security++;
           }
         }
-      });
-      var totalCan = carrier + weather + nationalAir + security; // set the dimensions and margins of the graph
+      }); // Total cancelled flights
 
-      var width = 450,
-          height = 450,
+      var totalCan = carrier + weather + nationalAir + security; // Total non-cancelled flights
+
+      var totalNon = total - totalCan; // set the dimensions and margins of the graph
+
+      var width = 550,
+          height = 550,
           margin = 40; // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 
       var radius = Math.min(width, height) / 2 - margin; // append the svg object to the div called 'cancellation'
 
       var svg = d3.select("#cancellation").append("svg").attr("id", "pie-chart").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+      d3.select("#airlinetext").text("(for ".concat(airline, ")"));
       var data = {
         'Airline': carrier,
         'Weather': weather,
         'National Air System': nationalAir,
         'Security': security
+      };
+      var dataM = {
+        'Cancelled': totalCan,
+        'Non-cancelled': totalNon
       }; // set the color scale
 
       var color = d3.scaleOrdinal().domain(data).range(d3.schemeTableau10); // Compute the position of each group on the pie:
 
-      var pie = d3.pie().value(function (d) {
+      var pie = d3.pie().sort(null).startAngle(2 * Math.PI).endAngle(4 * Math.PI).value(function (d) {
         return d.value;
       });
-      var data_ready = pie(d3.entries(data)); // Now I know that group A goes from 0 degrees to x degrees and so on.
+      var data_ready = pie(d3.entries(data));
+      var data_ready_M = pie(d3.entries(dataM)); // Now I know that group A goes from 0 degrees to x degrees and so on.
       // shape helper to build arcs:
 
-      var arcGenerator = d3.arc().innerRadius(radius - radius / 3).outerRadius(radius); // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+      var arcGenerator = d3.arc().innerRadius(radius - radius / 2).outerRadius(radius);
+      var arcGeneratorM = d3.arc().innerRadius(radius / 2 - radius / 4).outerRadius(radius / 2); // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
 
       if (totalCan != 0) {
         x.style.display = "none";
-        svg.selectAll('mySlices').data(data_ready).enter().append('path').attr('d', arcGenerator).attr('fill', function (d) {
+        svg.selectAll('mySlices').data(data_ready_M).enter().append('path').transition().delay(function (d, i) {
+          return i * 500;
+        }).duration(500).attrTween('d', function (d) {
+          var i = d3.interpolate(d.startAngle, d.endAngle);
+          return function (t) {
+            d.endAngle = i(t);
+            return arcGeneratorM(d);
+          };
+        }).attr('fill', function (d) {
           return color(d.data.key);
-        }).attr("stroke", "black").style("stroke-width", "2px").style("opacity", 0.7); // Now add the annotation. Use the centroid method to get the best coordinates
+        }).attr("stroke", "#CDEAF8").style("stroke-width", "1.5px").style("opacity", "0.8"); // Now add the annotation. Use the centroid method to get the best coordinates
 
-        svg.selectAll('mySlices').data(data_ready).enter().append('text').text(function (d) {
-          if (d.data.value != 0) return d.data.key;
-        }).attr("transform", function (d) {
+        svg.selectAll('mySlices').data(data_ready_M).enter().append('text').attr("transform", function (d) {
+          return "translate(" + arcGeneratorM.centroid(d) + ")";
+        }).transition().delay(1000).text(function (d) {
+          if (d.data.value != 0) return d.data.key + " " + d.data.value;
+        }).style("text-anchor", "middle").style("font-size", 13);
+        var svg = d3.select("#cancellation").append("svg").attr("id", "pie-chart").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        svg.selectAll('mySlices').data(data_ready).enter().append('path').transition().delay(function (d, i) {
+          return i * 500;
+        }).duration(500).attrTween('d', function (d) {
+          var i = d3.interpolate(d.startAngle, d.endAngle);
+          return function (t) {
+            d.endAngle = i(t);
+            return arcGenerator(d);
+          };
+        }).attr('fill', function (d) {
+          return color(d.data.key);
+        }).attr("stroke", "#CDEAF8").style("stroke-width", "1.5px").style("opacity", "0.8");
+        svg.selectAll('mySlices').data(data_ready).enter().append('text').transition().delay(1000) // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
+        .attr("transform", function (d) {
           return "translate(" + arcGenerator.centroid(d) + ")";
-        }).style("text-anchor", "middle").style("font-size", 17);
+        }).style("text-anchor", "middle").style("font-size", 13);
+        svg.selectAll('mySlices').data(data_ready).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cx = Math.cos(a) * (radius - 45);
+          return d.x = Math.cos(a) * (radius + 30);
+        }).attr("y", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cy = Math.sin(a) * (radius - 45);
+          return d.y = Math.sin(a) * (radius + 30);
+        }).text(function (d) {
+          if (d.data.value !== 0) return d.data.key + " " + d.data.value;
+        }).each(function (d) {
+          var bbox = this.getBBox();
+          d.sx = d.x - bbox.width / 2 - 2;
+          d.ox = d.x + bbox.width / 2 + 2;
+          d.sy = d.oy = d.y + 5;
+        });
+        svg.selectAll('mySlices').data(data_ready).enter().append("path").attr("class", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
+          console.log(d);
+
+          if (d.cx > d.ox) {
+            return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+          } else {
+            return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+          }
+        });
+        svg.selectAll('mySlices').data(data_ready_M).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cx = Math.cos(a) * (radius - 45);
+          return d.x = Math.cos(a) * (radius + 30);
+        }).attr("y", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cy = Math.sin(a) * (radius - 45);
+          return d.y = Math.sin(a) * (radius + 30);
+        }).text(function (d) {
+          return d.value.toFixed(2);
+        }).each(function (d) {
+          var bbox = this.getBBox();
+          d.sx = d.x - bbox.width / 2 - 2;
+          d.ox = d.x + bbox.width / 2 + 2;
+          d.sy = d.oy = d.y + 5;
+        });
+        svg.selectAll('mySlices').data(data_ready_M).enter().append("path").attr("class", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
+          console.log(d);
+
+          if (d.cx > d.ox) {
+            return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+          } else {
+            return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+          }
+        });
       } else {
         x.style.display = "block";
       }
     }
-  } // AUTOCOMPLETE SEARCH FIELD ***********************************************
+  } // draw bar graph
 
+
+  function drawNumberDelays(airline) {
+    showData("delaysSection");
+    d3.select("#airlinetext2").text("(for ".concat(airline, ")"));
+    var delayedByAirline = [];
+    flightFiltered.forEach(function (d) {
+      if (d.Airline === airline && d["Departure Delay Time (mins)"] > 0) {
+        delayedByAirline.push(d);
+      }
+    });
+    var countArr = new Array(24);
+
+    for (var i = 0; i < 24; i++) {
+      countArr[i] = 0;
+    }
+
+    delayedByAirline.forEach(function (d) {
+      countArr[Math.floor(d["Scheduled Departure Time"] / 100)]++;
+    });
+    var countByTime = [];
+
+    for (var i = 0; i < 24; i++) {
+      var temp = {
+        time: i,
+        count: countArr[i]
+      };
+      countByTime.push(temp);
+    } // console.log(airline);
+    // console.log(countByTime);
+    // set the dimensions and margins of the graph
+
+
+    var margin = {
+      top: 20,
+      right: 20,
+      bottom: 30,
+      left: 50
+    },
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom; // set the ranges
+
+    var x = d3.scaleBand().range([0, width]).padding(0.1);
+    var y = d3.scaleLinear().range([height, 0]); // append the svg object to the body of the page
+    // append a 'group' element to 'svg'
+    // moves the 'group' element to the top left margin
+
+    var svg = d3.select("#delays").append("svg").attr("id", "bar-chart").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom + 100).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // Scale the range of the data in the domains
+
+    x.domain(countByTime.map(function (d) {
+      return d.time;
+    }));
+    y.domain([0, d3.max(countByTime, function (d) {
+      return d.count + 10;
+    })]); // add the x Axis
+
+    svg.append("g").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x)); // text label for the x axis
+
+    svg.append("text").attr("transform", "translate(" + width / 2 + " ," + (height + margin.top + 20) + ")").style("text-anchor", "middle").text("Hour in the day"); // add the y Axis
+
+    svg.append("g").call(d3.axisLeft(y)); // text label for the y axis
+
+    svg.append("text").attr("transform", "rotate(-90)").attr("y", 0 - margin.left).attr("x", 0 - height / 2).attr("dy", "1em").style("text-anchor", "middle").text("Number of Delayed Flights");
+    var greyColor = "#bab0ab";
+    var barColor = "#bab0ab";
+    var highlightColor = "#e15658";
+    svg.selectAll(".bar").data(countByTime).enter().append("rect").attr("class", "bar").style("display", function (d) {
+      return d.count === 0 ? "none" : null;
+    }).style("fill", function (d) {
+      return d.count === d3.max(countByTime, function (d) {
+        return d.count;
+      }) ? highlightColor : barColor;
+    }).style("opacity", "0.7").attr("x", function (d) {
+      return x(d.time) - 18.5;
+    }).attr("width", x.bandwidth()).attr("y", function (d) {
+      return height;
+    }).attr("height", 0).transition().duration(750).delay(function (d, i) {
+      return i * 150;
+    }).attr("y", function (d) {
+      return y(d.count);
+    }).attr("height", function (d) {
+      return height - y(d.count);
+    });
+    svg.selectAll(".label").data(countByTime).enter().append("text").attr("class", "label").style("display", function (d) {
+      return d.count === 0 ? "none" : null;
+    }).attr("x", function (d) {
+      return x(d.time) + x.bandwidth() / 2 - 28.5;
+    }).style("fill", function (d) {
+      return d.count === d3.max(countByTime, function (d) {
+        return d.count;
+      }) ? highlightColor : greyColor;
+    }).attr("y", function (d) {
+      return height;
+    }).attr("height", 0).transition().duration(750).delay(function (d, i) {
+      return i * 150;
+    }).text(function (d) {
+      return d.count;
+    }).attr("y", function (d) {
+      return y(d.count) + .1;
+    }).attr("dy", "-.7em");
+  }
+
+  ; // AUTOCOMPLETE SEARCH FIELD ***********************************************
 
   function autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
@@ -29559,8 +30018,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
             loadOrigin();
           } else {
             loadDestination();
-          } // loadFlightData();
-
+          }
 
           closeAllLists();
         });
@@ -29572,6 +30030,12 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     inp.addEventListener("keydown", function (e) {
       var x = document.getElementById(this.id + "autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
+
+      if (e.keyCode == 8) {
+        if (inp === document.getElementById("originInput")) {
+          document.getElementById("destInput").value = '';
+        }
+      }
 
       if (e.keyCode == 40) {
         /*If the arrow DOWN key is pressed,
@@ -29640,5 +30104,5 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   } // END AUTOCOMPLETE SEARCH FIELD *******************************************
 
 })();
-},{"d3":"UzF0","fuzzysort":"GlPB"}]},{},["Focm"], null)
-//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.53dc2075.js.map
+},{"d3":"UzF0","./airline-colors":"Xw4n","fuzzysort":"GlPB"}]},{},["Focm"], null)
+//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.a3461f68.js.map
