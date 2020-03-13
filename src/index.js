@@ -507,8 +507,8 @@ import airlineColors from './airline-colors';
       // Total non-cancelled flights
       var totalNon = total - totalCan;
       // set the dimensions and margins of the graph
-      var width = 600,
-        height = 450,
+      var width = 550,
+        height = 550,
         margin = 40;
 
       // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
@@ -621,7 +621,7 @@ import airlineColors from './airline-colors';
           .append('text')
           .transition()
           	  .delay(1000)
-          .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
+          // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
           .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
           .style("text-anchor", "middle")
           .style("font-size", 13)
@@ -641,7 +641,7 @@ import airlineColors from './airline-colors';
             d.cy = Math.sin(a) * (radius - 45);
             return d.y = Math.sin(a) * (radius + 30);
           })
-          .text(function(d) { return d.value.toFixed(2);  })
+          .text(function(d) { if (d.data.value !== 0) return d.data.key + " " + d.data.value;  })
           .each(function(d) {
             var bbox = this.getBBox();
             d.sx = d.x - bbox.width/2 - 2;
@@ -666,7 +666,7 @@ import airlineColors from './airline-colors';
             }
           });
 
-          svg.selectAll('mySlices')
+        svg.selectAll('mySlices')
           .data(data_ready_M)
           .enter()
           .append("text")
