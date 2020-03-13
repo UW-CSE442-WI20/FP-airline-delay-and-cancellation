@@ -166,10 +166,25 @@ import airlineColors from './airline-colors';
       .attr('class', 'x axes')
       .attr('transform', 'translate(0,' + h + ')')
       .call(xAxis);
+    // text label for the x axis
+    svg.append("text")
+      .attr("transform",
+        "translate(" + (w / 2) + " ," +
+        (h + margin.top) + ")")
+      .style("text-anchor", "middle")
+      .text("Hour");
 
     svg.append('g')
       .attr('class', 'y axes')
       .call(yAxis);
+    // text label for the y axis
+    svg.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (h / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Average Delay Time (min)");
 
     drawList();
     airlineUnique.forEach(function (d) {
