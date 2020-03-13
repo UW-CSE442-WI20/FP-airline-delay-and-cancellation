@@ -34,12 +34,6 @@ import airlineColors from './airline-colors';
     document.getElementById(id).classList.add("hidden");
   }
 
-  function getColor(item) {
-    if ("Alaska Airlines Inc. ".includes(item.airline)) {
-      return item.color;
-    }
-  }
-
   // load origin airport data
   function loadAirportData() {
     d3.csv('airportList.csv').then(function (data) {
@@ -81,6 +75,10 @@ import airlineColors from './airline-colors';
       // console.log('end');
       autocomplete(document.getElementById("destInput"), destList);
     })
+    document.getElementById('destInput').value = '';
+    hideData("averageSection");
+    hideData("cancellationSection");
+    hideData("delaysSection");
   }
 
   function loadDestination() {
