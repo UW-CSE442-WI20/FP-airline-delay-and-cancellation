@@ -587,6 +587,46 @@ import airlineColors from './airline-colors';
           .style("text-anchor", "middle")
           .style("font-size", 13)
 
+        svg.selectAll('mySlices')
+                  .data(data_ready_M)
+                  .enter()
+                  .append("text")
+                  .attr("text-anchor", "middle")
+                  .attr("x", function(d) {
+                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                    d.cx = Math.cos(a) * (radius - 45);
+                    return d.x = Math.cos(a) * (radius + 30);
+                  })
+                  .attr("y", function(d) {
+                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+                    d.cy = Math.sin(a) * (radius - 45);
+                    return d.y = Math.sin(a) * (radius + 30);
+                  })
+                  .text(function(d) { return d.data.key + " " + d.value.toFixed();  })
+                  .each(function(d) {
+                    var bbox = this.getBBox();
+                    d.sx = d.x - bbox.width/2 - 2;
+                    d.ox = d.x + bbox.width/2 + 2;
+                    d.sy = d.oy = d.y + 5;
+                  });
+
+                svg.selectAll('mySlices')
+                  .data(data_ready_M)
+                  .enter()
+                  .append("path")
+                  .attr("class", "pointer")
+                  .style("fill", "none")
+                  .style("stroke", "black")
+
+                  .attr("d", function(d) {
+                   console.log(d);
+                    if(d.cx > d.ox) {
+                      return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+                    } else {
+                      return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+                    }
+                  });
+
         var svg = d3.select("#cancellation")
             .append("svg")
             .attr("id", "pie-chart")
@@ -666,45 +706,7 @@ import airlineColors from './airline-colors';
             }
           });
 
-        svg.selectAll('mySlices')
-          .data(data_ready_M)
-          .enter()
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("x", function(d) {
-            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-            d.cx = Math.cos(a) * (radius - 45);
-            return d.x = Math.cos(a) * (radius + 30);
-          })
-          .attr("y", function(d) {
-            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-            d.cy = Math.sin(a) * (radius - 45);
-            return d.y = Math.sin(a) * (radius + 30);
-          })
-          .text(function(d) { return d.value.toFixed(2);  })
-          .each(function(d) {
-            var bbox = this.getBBox();
-            d.sx = d.x - bbox.width/2 - 2;
-            d.ox = d.x + bbox.width/2 + 2;
-            d.sy = d.oy = d.y + 5;
-          });
-      
-        svg.selectAll('mySlices')
-          .data(data_ready_M)
-          .enter()
-          .append("path")
-          .attr("class", "pointer")
-          .style("fill", "none")
-          .style("stroke", "black")
-          
-          .attr("d", function(d) {
-           console.log(d);
-            if(d.cx > d.ox) {
-              return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-            } else {
-              return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
-            }
-          });
+
           
       } else {
         x.style.display = "block";
