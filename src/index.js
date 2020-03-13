@@ -1,4 +1,5 @@
 import { csv } from 'd3';
+import airlineColors from './airline-colors';
 
 "use strict";
 (function () {
@@ -11,6 +12,9 @@ import { csv } from 'd3';
   var flightFiltered = []; // one origin, one dest
   var minMean = 1000000;
   var maxMean = -1000000;
+  var meanList = []; // to make the list
+
+  var table, thead, tbody, rows, cells;
 
   function init() {
     const d3 = require('d3');
@@ -71,6 +75,10 @@ import { csv } from 'd3';
       // console.log('end');
       autocomplete(document.getElementById("destInput"), destList);
     })
+    document.getElementById('destInput').value = '';
+    hideData("averageSection");
+    hideData("cancellationSection");
+    hideData("delaysSection");
   }
 
   function loadDestination() {
@@ -90,6 +98,8 @@ import { csv } from 'd3';
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
     d3.selectAll("#bar-chart").remove();
+    d3.selectAll("#avg-table").remove();
+
     drawDelayedBars();
   }
 
@@ -108,14 +118,22 @@ import { csv } from 'd3';
     // get all the airlines
     airlineUnique = [...new Set(airlines)];
 
+    meanList = [];
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
-      // minMean = Math.min(minMean, )
       mean.forEach(function(d) {
         // console.log(+d.mean);
         minMean = Math.min(+minMean, +d.mean);
         maxMean = Math.max(+maxMean, +d.mean);
       })
+
+      var total = 0;
+      for (var i = 0; i < mean.length; i++) {
+        total += mean[i].mean;
+      }
+
+      var temp = { Airline: mean[0].airline, "Average Delay Time (mins)": (total / mean.length).toFixed(3) };
+      meanList.push(temp);
     })
 
     // SET UP SVG
@@ -137,16 +155,6 @@ import { csv } from 'd3';
     var yAxis = d3.axisLeft(y)
       .ticks(10);
 
-    var xGrid = d3.axisBottom(x)
-      .ticks(5)
-      .tickSize(-h, 0, 0)
-      .tickFormat('');
-
-    var yGrid = d3.axisLeft(y)
-      .ticks(2)
-      .tickSize(-w, 0, 0)
-      .tickFormat('');
-
     var svg = d3.select('#chart').append('svg')
       .attr("id", "line-chart")
       .attr("width", w + margin.left + margin.right)
@@ -163,21 +171,22 @@ import { csv } from 'd3';
       .attr('class', 'y axes')
       .call(yAxis);
 
-    svg.append('g')
-      .attr('class', 'grid')
-      .attr('transform', 'translate(0,' + h + ')')
-      .call(xGrid);
+    svg.append("line")
+        .attr("x1", 0)
+        .attr("x2", 545)
+        .attr("y1", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+        .attr("y2", function(){ return y(10) }) // TODO change this 10 with whatever the actual average is
+        .attr("stroke-width", 2)
+        .attr("stroke", "black")
 
-    svg.append('g')
-      .attr('class', 'y-grid')
-      .call(yGrid);
-
+    drawList();
     airlineUnique.forEach(function (d) {
       var mean = getMean(d, flightYear);
       plotLine(mean, d);
     })
 
     function plotLine(mean_data, cirClass) {
+      // console.log(cirClass);
       var line = d3.line()
         .curve(d3.curveCardinal)
         .x(function (d) {
@@ -186,18 +195,6 @@ import { csv } from 'd3';
         .y(function (d) {
           return y(d.mean);
         });
-
-      var tooltip = d3.select('#chart')
-        .append('div')
-        .style('position', 'absolute')
-        .style('z-index', '10')
-        .style('visibility', 'hidden')
-        .text('');
-
-      svg.append('path')
-        .datum(mean_data)
-        .attr('class', 'line')
-        .attr('d', line);
 
       svg.selectAll('.dot')
         .data(mean_data)
@@ -214,22 +211,72 @@ import { csv } from 'd3';
         .on('mouseover', function (d) {
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
-        .on('mousemove', function () {
-          return tooltip.style('top', (event.pageY - 10) + 'px').style('left', (event.pageX + 10) + 'px');
+        .on('mouseover', function (d) {
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.airline.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", airlineColors.find(function (item) {
+              if (item !== undefined && d.airline.includes(item.airline)) {
+                return item;
+              }
+            }).color)
+            .style("opacity", "0.8")
+            .style("color", "#f5fbff");
         })
-        .on('mouseout', function () {
-          return tooltip.style('visibility', 'hidden');
+        .on('mouseout', function (d) {
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.airline.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", "transparent")
+            .style("color", "#00090f")
+            .style("opacity", "1");
         })
+        .style('fill', airlineColors.find(function (airlineColor) {
+          if (airlineColor !== undefined && mean_data[0].airline.includes(airlineColor.airline)) {
+            return airlineColor;
+          }
+        }).color)
+
+      svg.append('path')
+        .datum(mean_data)
+        .attr('class', `line ${airlineColors.find(function (item) {
+          if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+            return item
+          }
+        }).code}`)
+        .attr('d', line)
+        .attr('stroke', airlineColors.find(function (item) {
+            if (item !== undefined && mean_data[0].airline.includes(item.airline)) {
+              return item;
+            }
+          }).color
+        );
+
+      // console.log('begin');
+      // console.log(mean_data);
+      // console.log('end');
+
+      svg.selectAll(".line")
+        .data(airlineUnique)
         .on('click', function (d) {
-          // Delete old svg before drawing a new one
+          // console.log(d);
           d3.selectAll("#pie-chart").remove();
           d3.selectAll("#bar-chart").remove();
-          drawCancel(d.airline, mean_data);
-          drawNumberDelays(d.airline);
-        });
-
-      svg.selectAll("path")
-        .on('mouseover', function () {
+          drawCancel(d);
+          drawNumberDelays(d);
+        })
+        .on('mouseover', function (d) {
           const selection = d3.select(this).raise();
           selection
             .transition()
@@ -238,25 +285,148 @@ import { csv } from 'd3';
             .style("stroke", "#steelblue")
             .style("opacity", "1")
             .style("stroke-width", "3");
+
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", airlineColors.find(function (item) {
+              if (item !== undefined && d.includes(item.airline)) {
+                return item;
+              }
+            }).color)
+            .style("opacity", "0.8")
+            .style("color", "#f5fbff");
         })
-        .on('mouseout', function () {
+        .on('mouseout', function (d) {
           const selection = d3.select(this)
           selection
             .transition()
             .delay("100")
             .duration("10")
-            .style("stroke","steelblue")
             .style("opacity","0.3")
-            .style("stroke-width","2");
-          })
-    }
+            .style("stroke-width","3");
 
-    function drawList(mean_data) {
-      var a = document.createElement("DIV");
-      a.setAttribute("id", "mean-list");
-      a.setAttribute("class", "mean-items");
-    
+          var code;
+          airlineColors.forEach(function (e) {
+            if (d.includes(e.airline)) {
+              code = e.code;
+            }
+          })
+
+          const chosenLine = d3.selectAll("." + code + "s");
+          chosenLine
+            .style("background-color", "transparent")
+            .style("color", "#00090f")
+            .style("opacity", "1");
+        });
     }
+  }
+
+  function drawList() {
+    var svg = d3.select("#table").append("svg")
+      .attr("height", 1)
+      .attr("width", 1);
+
+    table = d3.select("#table")
+      .append("table")
+      .attr("id", "avg-table")
+      .attr("class", "table table-condensed table-striped"),
+    thead = table.append("thead"),
+    tbody = table.append("tbody");
+
+    var columns = Object.keys(meanList[0]);
+    var header = thead.append("tr")
+      .selectAll("th")
+      .data(columns)
+      .enter()
+      .append("th")
+      .text(function (d) {
+        return d;
+      });
+
+    rows = tbody.selectAll("tr")
+      .data(meanList)
+      .enter()
+      .append("tr")
+      .attr('class', function(d) {
+        var retVal = airlineColors.find(function (item) {
+          if (item !== undefined && d.Airline.includes(item.airline)) {
+            return item;
+          }
+        }).code;
+        return `${retVal}s`;
+      })
+      .on('click', function (d) {
+        d3.selectAll("#pie-chart").remove();
+        d3.selectAll("#bar-chart").remove();
+        drawCancel(d.airline);
+        drawNumberDelays(d.airline);
+      })
+      .on("mouseover", function (d) {
+        var code;
+        airlineColors.forEach(function (e) {
+          if (d.Airline.includes(e.airline)) {
+            code = e.code;
+          }
+        })
+
+        const chosenLine = d3.selectAll("." + code);
+        chosenLine.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("stroke", "#steelblue")
+            .style("opacity", "1")
+            .style("stroke-width", "3");
+
+        d3.select(this)
+          .style("background-color", airlineColors.find(function (item) {
+            if (item !== undefined && d.Airline.includes(item.airline)) {
+              return item;
+            }
+          }).color)
+          .style("opacity", "0.8")
+          .style("color", "#f5fbff");
+      })
+      .on("mouseout", function (d) {
+        var code;
+        airlineColors.forEach(function (e) {
+          if (d.Airline.includes(e.airline)) {
+            code = e.code;
+          }
+        })
+
+        const chosenLine = d3.selectAll("." + code);
+        chosenLine.raise()
+            .transition()
+            .delay("100")
+            .duration("10")
+            .style("opacity","0.3")
+            .style("stroke-width","3");
+
+        d3.select(this)
+          .style("background-color", "transparent")
+          .style("color", "#00090f")
+          .style("opacity", "1");
+      });
+
+      cells = rows.selectAll("td")
+        .data(function (row) {
+          return columns.map(function (d, i) {
+            return {i : d, value: row[d]};
+          });
+        })
+        .enter()
+        .append("td")
+        .html(function(d) {
+          return d.value;
+        });
   }
 
   function getMean(airline, flightYear) {
@@ -274,7 +444,7 @@ import { csv } from 'd3';
         }
       })
 
-      var temp = { airline: airline, month: (i + 1), mean: (total / count) };
+      var temp = { airline: airline, month: (i + 1), mean: (total / count)};
       if (!isNaN(temp.mean)) {
         mean.push(temp);
       }
@@ -283,7 +453,8 @@ import { csv } from 'd3';
   }
 
   // Cancellation Pie Chart
-  function drawCancel(airline, mean) {
+  function drawCancel(airline) {
+    // console.log(airline);
     showData("cancellationSection");
     var total = 0, carrier = 0, weather = 0, nationalAir = 0, security = 0;
     var x = document.getElementById("no-cancel");
@@ -350,7 +521,7 @@ import { csv } from 'd3';
           .attr('fill', function (d) { return (color(d.data.key)) })
           .attr("stroke", "black")
           .style("stroke-width", "2px")
-          .style("opacity", 0.7)
+          .style("opacity", "0.8")
 
         // Now add the annotation. Use the centroid method to get the best coordinates
         svg

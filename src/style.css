@@ -77,6 +77,10 @@ img {
   align-self: flex-start;
 }
 
+.data > div {
+  align-self: center;
+}
+
 .labelText {
   font-size: 20px;
   color: #444;
@@ -90,6 +94,37 @@ img {
   margin-bottom: 5px;
 }
 
+.visuals {
+  display: flex;
+}
+
+#table {
+  width: 545px;
+  height: 400px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+table {
+  width: 545px;
+  max-height: 400px;
+  margin-top: -20px
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 5px;
+}
+
+td {
+  min-height: 30px;
+  height: 50px;
+  padding: 0px 5px;
+}
 
 
 
@@ -194,7 +229,7 @@ input[type=submit] {
 
 path.line {
   fill: none;
-  stroke: steelblue;
+  /*stroke: steelblue;*/
   opacity: 0.3;
-  stroke-width: 2;
+  stroke-width: 3;
 }
