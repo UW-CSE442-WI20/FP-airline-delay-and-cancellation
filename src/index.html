@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Airline Delay and Cancellation</title>
+    <title>Airline Delays and Cancellations</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
     <script src="https://rawgit.com/farzher/fuzzysort/master/fuzzysort.js"></script>
@@ -12,7 +12,7 @@
   </head>
   <body>
     <section class="main-banner">
-        <h1>Airline Delay and Cancellation</h1>
+        <h1>Airline Delays and Cancellations</h1>
         <div class="image">
             <img src="../img/ezgif.com-video-to-gif.gif" alt="">
         </div>
@@ -20,7 +20,11 @@
 
     <section id="about">
         <p>
-            We all know that flight cancellations and delays impact our travel plans. Nowadays, even with more and more airlines trying their best to reduce the number of delayed or cancelled flights, this problem still greatly impact customers’ experiences. With this big picture in mind, our group proudly presents users with an interactive website to help them choose the best airline to travel with according to cancellation flights and delayed flights statistics.
+            We all know that flight cancellations and delays impact our travel plans. Nowadays,
+            even with more and more airlines trying their best to reduce the number of delayed or
+            cancelled flights, this problem still greatly impact customers’ experiences. With this
+            big picture in mind, our group proudly presents users with an interactive website to help
+            them choose the best airline to travel with according to cancellation flights and delayed flights statistics.
         </p>
     </section>
     <section id="searchInput">
@@ -41,11 +45,8 @@
             </form>
         </div>
     </section>
-
-
-
     <section id="averageSection" class="data hidden">
-        <div class="text">Average Delay Time</div>
+        <div class="text">Average Delay Time per Month</div>
         <div class="visuals">
             <div id="chart"></div>
             <div id="table"></div>
@@ -63,7 +64,7 @@
     </section>
 
     <section class="data hidden" id="delaysSection">
-        <div class="text">Number of delays</div>
+        <div class="text">Number of Delays per Hour</div>
         <div id="airlinetext2"></div>
         <div id="delays"></div>
     </section>
