@@ -681,7 +681,7 @@ import airlineColors from './airline-colors';
     var svg = d3.select("#delays").append("svg")
       .attr("id", "bar-chart")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom + 10)
+      .attr("height", height + margin.top + margin.bottom + 100)
       .append("g")
       .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
