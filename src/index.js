@@ -364,10 +364,11 @@ import airlineColors from './airline-colors';
         return `${retVal}s`;
       })
       .on('click', function (d) {
+        console.log("hello");
         d3.selectAll("#pie-chart").remove();
         d3.selectAll("#bar-chart").remove();
-        drawCancel(d.airline);
-        drawNumberDelays(d.airline);
+        drawCancel(d.Airline);
+        drawNumberDelays(d.Airline);
       })
       .on("mouseover", function (d) {
         var code;
