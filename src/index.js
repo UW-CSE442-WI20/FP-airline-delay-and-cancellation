@@ -210,7 +210,7 @@ import { csv } from 'd3';
           return x(d.month);
         })
         .attr('r', 4)
-        .style('fill', 'blue')
+        .style('fill', '#4e79a7')
         .on('mouseover', function (d) {
           return tooltip.style('visibility', 'visible').text(d.airline);
         })
@@ -448,9 +448,9 @@ import { csv } from 'd3';
       .style("text-anchor", "middle")
       .text("Number of Delayed Flights");
 
-    var greyColor = "#898989";
-    var barColor = "#BB998C";
-    var highlightColor = "#EEC9BC";
+    var greyColor = "#bab0ab";
+    var barColor = "#bab0ab";
+    var highlightColor = "#e15658";
 
     svg.selectAll(".bar")
       .data(countByTime)
@@ -461,6 +461,7 @@ import { csv } from 'd3';
         return d.count === d3.max(countByTime, d => { return d.count; })
           ? highlightColor : barColor
       })
+      .style("opacity", "0.7")
       .attr("x", d => { return x(d.time); })
       .attr("width", x.bandwidth())
       .attr("y", d => { return height; })

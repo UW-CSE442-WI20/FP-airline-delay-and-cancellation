@@ -3,7 +3,7 @@ body {
   font-family: 'Spartan', sans-serif;
   background-color: #CDEAF8;
   font-size: 16px;
-  margin: 30px 50px;
+  margin: 100px 50px;
   display: flex;
   flex-direction: column;
 }
@@ -42,9 +42,10 @@ img {
 }
 
 .autocomplete > input {
-  background-color: #EEC9BC;
+  background-color: #ff9da7;
   color: #444;
   width: 100%;
+  opacity: 0.7;
 }
 
 #about {
@@ -66,7 +67,7 @@ img {
   display: flex;
   flex-direction: column;
   height: 500px;
-  margin-top: 20px;
+  margin-top: 50px;
   margin-bottom: 50px;
 }
 
@@ -163,7 +164,7 @@ input[type=submit] {
 
 .autocomplete-active {
   /*when navigating through the items using the arrow keys:*/
-  background-color: DodgerBlue !important;
+  background-color: #66A7C5 !important;
   color: #ffffff;
 }
 
