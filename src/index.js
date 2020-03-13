@@ -420,7 +420,8 @@ import airlineColors from './airline-colors';
             }
           }).color)
           .style("opacity", "0.8")
-          .style("color", "#f5fbff");
+          .style("color", "#f5fbff")
+          .style("cursor", "pointer");
       })
       .on("mouseout", function (d) {
         var code;
@@ -755,12 +756,13 @@ import airlineColors from './airline-colors';
     var y = d3.scaleLinear()
       .range([height, 0]);
 
+
     // append the svg object to the body of the page
     // append a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
     var svg = d3.select("#delays").append("svg")
       .attr("id", "bar-chart")
-      .attr("width", width + margin.left + margin.right)
+      .attr("width", width + margin.left + margin.right - 35)
       .attr("height", height + margin.top + margin.bottom + 100)
       .append("g")
       .attr("transform",
