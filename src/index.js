@@ -92,6 +92,7 @@ import airlineColors from './airline-colors';
     // Delete old svg before drawing a new one
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
+    d3.selectAll("#pointer").remove();
     d3.selectAll("#bar-chart").remove();
     d3.selectAll("#avg-table").remove();
 
@@ -219,6 +220,7 @@ import airlineColors from './airline-colors';
         .on('click', function (d) {
           // console.log(d);
           d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#pointer").remove();
           d3.selectAll("#bar-chart").remove();
           drawCancel(d.airline);
           drawNumberDelays(d.airline);
@@ -300,6 +302,7 @@ import airlineColors from './airline-colors';
         .on('click', function (d) {
           // console.log(d);
           d3.selectAll("#pie-chart").remove();
+          d3.selectAll("#pointer").remove();
           d3.selectAll("#bar-chart").remove();
           drawCancel(d);
           drawNumberDelays(d);
@@ -392,6 +395,7 @@ import airlineColors from './airline-colors';
       })
       .on('click', function (d) {
         d3.selectAll("#pie-chart").remove();
+        d3.selectAll("pointer").remove();
         d3.selectAll("#bar-chart").remove();
         drawCancel(d.Airline);
         drawNumberDelays(d.Airline);
@@ -576,58 +580,62 @@ import airlineColors from './airline-colors';
           .style("opacity", "0.8")
 
         // Now add the annotation. Use the centroid method to get the best coordinates
-        svg
-          .selectAll('mySlices')
-          .data(data_ready_M)
-          .enter()
-          .append('text')
-          .attr("transform", function (d) { return "translate(" + arcGeneratorM.centroid(d) + ")"; })
-          .transition()
-          	  .delay(1000)
-          .text(function (d) { if (d.data.value != 0) return d.data.key + " " + d.data.value })
-          .style("text-anchor", "middle")
-          .style("font-size", 13)
+//        svg
+//          .selectAll('mySlices')
+//          .data(data_ready_M)
+//          .enter()
+//          .append('text')
+//          .attr("transform", function (d) { return "translate(" + arcGeneratorM.centroid(d) + ")"; })
+//          .transition()
+//          	  .delay(1000)
+//          .text(function (d) { if (d.data.value != 0) return d.data.key + " " + d.data.value })
+//          .style("text-anchor", "middle")
+//          .style("font-size", 13)
 
         svg.selectAll('mySlices')
-                  .data(data_ready_M)
-                  .enter()
-                  .append("text")
-                  .attr("text-anchor", "middle")
-                  .attr("x", function(d) {
-                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                    d.cx = Math.cos(a) * (radius - 45);
-                    return d.x = Math.cos(a) * (radius + 30);
-                  })
-                  .attr("y", function(d) {
-                    var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-                    d.cy = Math.sin(a) * (radius - 45);
-                    return d.y = Math.sin(a) * (radius + 30);
-                  })
-                  .text(function(d) { return d.data.key + " " + d.value.toFixed();  })
-                  .each(function(d) {
-                    var bbox = this.getBBox();
-                    d.sx = d.x - bbox.width/2 - 2;
-                    d.ox = d.x + bbox.width/2 + 2;
-                    d.sy = d.oy = d.y + 5;
-                  });
+          .data(data_ready_M)
+          .enter()
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", function(d) {
+            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+            d.cx = Math.cos(a) * (radius - 45);
+            return d.x = Math.cos(a) * (radius + 30);
+          })
+          .attr("y", function(d) {
+            var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
+            d.cy = Math.sin(a) * (radius - 45);
+            return d.y = Math.sin(a) * (radius + 30);
+          })
+          .transition()
+            .delay(1000)
+          .text(function(d) { return d.data.key + " " + d.value.toFixed();  })
+          .each(function(d) {
+            var bbox = this.getBBox();
+            d.sx = d.x - bbox.width/2 - 2;
+            d.ox = d.x + bbox.width/2 + 2;
+            d.sy = d.oy = d.y + 5;
+          });
 
-                svg.selectAll('mySlices')
-                  .data(data_ready_M)
-                  .enter()
-                  .append("path")
-                  .attr("class", "pointer")
-                  .style("fill", "none")
-                  .style("stroke", "black")
+        svg.selectAll('mySlices')
+          .data(data_ready_M)
+          .enter()
+          .append("path")
+          .attr("id", "pointer")
+          .style("fill", "none")
+          .style("stroke", "black")
+          .attr("d", function(d) {
+           console.log(d);
+           if (d.data.value != 0) {
+            if(d.cx > d.ox) {
+              return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+            } else {
+              return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+            }
+            }
+          });
 
-                  .attr("d", function(d) {
-                   console.log(d);
-                    if(d.cx > d.ox) {
-                      return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-                    } else {
-                      return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
-                    }
-                  });
-
+        // Cancellation Reasons
         var svg = d3.select("#cancellation")
             .append("svg")
             .attr("id", "pie-chart")
@@ -648,24 +656,24 @@ import airlineColors from './airline-colors';
           		return function(t) {
           			d.endAngle = i(t);
           			return arcGenerator(d)
-          			}
+                }
           	})
           .attr('fill', function (d) { return (color(d.data.key)) })
           .attr("stroke", "#CDEAF8")
           .style("stroke-width", "1.5px")
           .style("opacity", "0.8")
 
-        svg
-          .selectAll('mySlices')
-          .data(data_ready)
-          .enter()
-          .append('text')
-          .transition()
-          	  .delay(1000)
-          // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
-          .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
-          .style("text-anchor", "middle")
-          .style("font-size", 13)
+//        svg
+//          .selectAll('mySlices')
+//          .data(data_ready)
+//          .enter()
+//          .append('text')
+//          .transition()
+//          	  .delay(1000)
+//          // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
+//          .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
+//          .style("text-anchor", "middle")
+//          .style("font-size", 13)
 
         svg.selectAll('mySlices')
           .data(data_ready)
@@ -694,16 +702,17 @@ import airlineColors from './airline-colors';
           .data(data_ready)
           .enter()
           .append("path")
-          .attr("class", "pointer")
+          .attr("id", "pointer")
           .style("fill", "none")
           .style("stroke", "black")
-          
           .attr("d", function(d) {
            console.log(d);
+           if (d.data.value !== 0) {
             if(d.cx > d.ox) {
               return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
             } else {
               return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+            }
             }
           });
 
