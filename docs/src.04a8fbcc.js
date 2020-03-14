@@ -29428,6 +29428,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
     d3.selectAll("#line-chart").remove();
     d3.selectAll("#pie-chart").remove();
+    d3.selectAll("#pointer").remove();
     d3.selectAll("#bar-chart").remove();
     d3.selectAll("#avg-table").remove();
     drawDelayedBars();
@@ -29513,6 +29514,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       }).attr('r', 4).style('fill', '#4e79a7').on('click', function (d) {
         // console.log(d);
         d3.selectAll("#pie-chart").remove();
+        d3.selectAll("#pointer").remove();
         d3.selectAll("#bar-chart").remove();
         drawCancel(d.airline);
         drawNumberDelays(d.airline);
@@ -29565,6 +29567,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       svg.selectAll(".line").data(airlineUnique).on('click', function (d) {
         // console.log(d);
         d3.selectAll("#pie-chart").remove();
+        d3.selectAll("#pointer").remove();
         d3.selectAll("#bar-chart").remove();
         drawCancel(d);
         drawNumberDelays(d);
@@ -29619,6 +29622,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       return "".concat(retVal, "s");
     }).on('click', function (d) {
       d3.selectAll("#pie-chart").remove();
+      d3.selectAll("pointer").remove();
       d3.selectAll("#bar-chart").remove();
       drawCancel(d.Airline);
       drawNumberDelays(d.Airline);
@@ -29637,7 +29641,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         if (item !== undefined && d.Airline.includes(item.airline)) {
           return item;
         }
-      }).color).style("opacity", "0.8").style("color", "#f5fbff");
+      }).color).style("opacity", "0.8").style("color", "#f5fbff").style("cursor", "pointer");
     }).on("mouseout", function (d) {
       var code;
 
@@ -29725,7 +29729,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           height = 550,
           margin = 40; // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 
-      var radius = Math.min(width, height) / 2 - margin; // append the svg object to the div called 'cancellation'
+      var radius = Math.min(width - 100, height - 100) / 2 - margin; // append the svg object to the div called 'cancellation'
 
       var svg = d3.select("#cancellation").append("svg").attr("id", "pie-chart").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
       d3.select("#airlinetext").text("(for ".concat(airline, ")"));
@@ -29765,12 +29769,46 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         }).attr('fill', function (d) {
           return color(d.data.key);
         }).attr("stroke", "#CDEAF8").style("stroke-width", "1.5px").style("opacity", "0.8"); // Now add the annotation. Use the centroid method to get the best coordinates
+        //        svg
+        //          .selectAll('mySlices')
+        //          .data(data_ready_M)
+        //          .enter()
+        //          .append('text')
+        //          .attr("transform", function (d) { return "translate(" + arcGeneratorM.centroid(d) + ")"; })
+        //          .transition()
+        //          	  .delay(1000)
+        //          .text(function (d) { if (d.data.value != 0) return d.data.key + " " + d.data.value })
+        //          .style("text-anchor", "middle")
+        //          .style("font-size", 13)
 
-        svg.selectAll('mySlices').data(data_ready_M).enter().append('text').attr("transform", function (d) {
-          return "translate(" + arcGeneratorM.centroid(d) + ")";
-        }).transition().delay(1000).text(function (d) {
-          if (d.data.value != 0) return d.data.key + " " + d.data.value;
-        }).style("text-anchor", "middle").style("font-size", 13);
+        svg.selectAll('mySlices').data(data_ready_M).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cx = Math.cos(a) * (radius * 0.6 - 45);
+          return d.x = Math.cos(a) * (radius * 0.6 + 30);
+        }).attr("y", function (d) {
+          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
+          d.cy = Math.sin(a) * (radius * 0.6 - 45);
+          return d.y = Math.sin(a) * (radius * 0.6 + 30);
+        }).text(function (d) {
+          return d.data.key + " " + d.value.toFixed();
+        }).each(function (d) {
+          var bbox = this.getBBox();
+          d.sx = d.x - bbox.width / 2 - 2;
+          d.ox = d.x + bbox.width / 2 + 2;
+          d.sy = d.oy = d.y + 5;
+        });
+        svg.selectAll('mySlices').data(data_ready_M).enter().append("path").attr("id", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
+          console.log(d);
+
+          if (d.data.value !== 0) {
+            if (d.cx > d.ox) {
+              return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+            } else {
+              return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+            }
+          }
+        }); // Cancellation Reasons
+
         var svg = d3.select("#cancellation").append("svg").attr("id", "pie-chart").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
         svg.selectAll('mySlices').data(data_ready).enter().append('path').transition().delay(function (d, i) {
           return i * 500;
@@ -29782,11 +29820,18 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           };
         }).attr('fill', function (d) {
           return color(d.data.key);
-        }).attr("stroke", "#CDEAF8").style("stroke-width", "1.5px").style("opacity", "0.8");
-        svg.selectAll('mySlices').data(data_ready).enter().append('text').transition().delay(1000) // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
-        .attr("transform", function (d) {
-          return "translate(" + arcGenerator.centroid(d) + ")";
-        }).style("text-anchor", "middle").style("font-size", 13);
+        }).attr("stroke", "#CDEAF8").style("stroke-width", "1.5px").style("opacity", "0.8"); //        svg
+        //          .selectAll('mySlices')
+        //          .data(data_ready)
+        //          .enter()
+        //          .append('text')
+        //          .transition()
+        //          	  .delay(1000)
+        //          // .text(function (d) { if (d.data.value != 0) return d.data.key + " "+ d.data.value })
+        //          .attr("transform", function (d) { return "translate(" + arcGenerator.centroid(d) + ")"; })
+        //          .style("text-anchor", "middle")
+        //          .style("font-size", 13)
+
         svg.selectAll('mySlices').data(data_ready).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
           var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
           d.cx = Math.cos(a) * (radius - 45);
@@ -29803,38 +29848,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
           d.ox = d.x + bbox.width / 2 + 2;
           d.sy = d.oy = d.y + 5;
         });
-        svg.selectAll('mySlices').data(data_ready).enter().append("path").attr("class", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
+        svg.selectAll('mySlices').data(data_ready).enter().append("path").attr("id", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
           console.log(d);
 
-          if (d.cx > d.ox) {
-            return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-          } else {
-            return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
-          }
-        });
-        svg.selectAll('mySlices').data(data_ready_M).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
-          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
-          d.cx = Math.cos(a) * (radius - 45);
-          return d.x = Math.cos(a) * (radius + 30);
-        }).attr("y", function (d) {
-          var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
-          d.cy = Math.sin(a) * (radius - 45);
-          return d.y = Math.sin(a) * (radius + 30);
-        }).text(function (d) {
-          return d.value.toFixed(2);
-        }).each(function (d) {
-          var bbox = this.getBBox();
-          d.sx = d.x - bbox.width / 2 - 2;
-          d.ox = d.x + bbox.width / 2 + 2;
-          d.sy = d.oy = d.y + 5;
-        });
-        svg.selectAll('mySlices').data(data_ready_M).enter().append("path").attr("class", "pointer").style("fill", "none").style("stroke", "black").attr("d", function (d) {
-          console.log(d);
-
-          if (d.cx > d.ox) {
-            return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
-          } else {
-            return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+          if (d.data.value !== 0) {
+            if (d.cx > d.ox) {
+              return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
+            } else {
+              return "M" + d.ox + "," + d.oy + "L" + d.sx + "," + d.sy + " " + d.cx + "," + d.cy;
+            }
           }
         });
       } else {
@@ -29853,9 +29875,9 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         delayedByAirline.push(d);
       }
     });
-    var countArr = new Array(24);
+    var countArr = new Array(25);
 
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < 25; i++) {
       countArr[i] = 0;
     }
 
@@ -29864,7 +29886,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     });
     var countByTime = [];
 
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < 25; i++) {
       var temp = {
         time: i,
         count: countArr[i]
@@ -29881,15 +29903,15 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       bottom: 30,
       left: 50
     },
-        width = 960 - margin.left - margin.right,
+        width = 960 - margin.left - margin.right + 10,
         height = 500 - margin.top - margin.bottom; // set the ranges
 
-    var x = d3.scaleBand().range([0, width]).padding(0.1);
+    var x = d3.scaleBand().range([0, width]).padding(0.2);
     var y = d3.scaleLinear().range([height, 0]); // append the svg object to the body of the page
     // append a 'group' element to 'svg'
     // moves the 'group' element to the top left margin
 
-    var svg = d3.select("#delays").append("svg").attr("id", "bar-chart").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom + 100).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // Scale the range of the data in the domains
+    var svg = d3.select("#delays").append("svg").attr("id", "bar-chart").attr("width", width + margin.left + margin.right - 35).attr("height", height + margin.top + margin.bottom + 100).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")"); // Scale the range of the data in the domains
 
     x.domain(countByTime.map(function (d) {
       return d.time;
@@ -29915,7 +29937,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         return d.count;
       }) ? highlightColor : barColor;
     }).style("opacity", "0.7").attr("x", function (d) {
-      return x(d.time) - 18.5;
+      return x(d.time) + 18.5;
     }).attr("width", x.bandwidth()).attr("y", function (d) {
       return height;
     }).attr("height", 0).transition().duration(750).delay(function (d, i) {
@@ -29928,7 +29950,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
     svg.selectAll(".label").data(countByTime).enter().append("text").attr("class", "label").style("display", function (d) {
       return d.count === 0 ? "none" : null;
     }).attr("x", function (d) {
-      return x(d.time) + x.bandwidth() / 2 - 28.5;
+      return d.count > 9 ? x(d.time) + 18.5 + x.bandwidth() / 8 : x(d.time) + 30;
     }).style("fill", function (d) {
       return d.count === d3.max(countByTime, function (d) {
         return d.count;
@@ -30105,4 +30127,4 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 })();
 },{"d3":"UzF0","./airline-colors":"Xw4n","fuzzysort":"GlPB"}]},{},["Focm"], null)
-//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.a3461f68.js.map
+//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.04a8fbcc.js.map
