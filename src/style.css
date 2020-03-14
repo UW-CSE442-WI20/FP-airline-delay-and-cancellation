@@ -234,3 +234,8 @@ path.line {
   opacity: 0.3;
   stroke-width: 3;
 }
+
+.description {
+  fill: darkgray;
+  text-align: center;
+}
