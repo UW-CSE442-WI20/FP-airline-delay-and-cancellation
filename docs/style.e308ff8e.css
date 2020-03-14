@@ -235,4 +235,9 @@ path.line {
   stroke-width: 3;
 }
 
+.description {
+  fill: darkgray;
+  text-align: center;
+}
+
 /*# sourceMappingURL=/style.e308ff8e.css.map */
