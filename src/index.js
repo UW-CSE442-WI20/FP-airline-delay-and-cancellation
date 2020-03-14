@@ -599,16 +599,14 @@ import airlineColors from './airline-colors';
           .attr("text-anchor", "middle")
           .attr("x", function(d) {
             var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-            d.cx = Math.cos(a) * (radius - 45);
-            return d.x = Math.cos(a) * (radius + 30);
+            d.cx = Math.cos(a) * (radius*0.6 - 45);
+            return d.x = Math.cos(a) * (radius*0.6 + 30);
           })
           .attr("y", function(d) {
             var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
-            d.cy = Math.sin(a) * (radius - 45);
-            return d.y = Math.sin(a) * (radius + 30);
+            d.cy = Math.sin(a) * (radius*0.6 - 45);
+            return d.y = Math.sin(a) * (radius*0.6 + 30);
           })
-          .transition()
-            .delay(1000)
           .text(function(d) { return d.data.key + " " + d.value.toFixed();  })
           .each(function(d) {
             var bbox = this.getBBox();
@@ -626,7 +624,7 @@ import airlineColors from './airline-colors';
           .style("stroke", "black")
           .attr("d", function(d) {
            console.log(d);
-           if (d.data.value != 0) {
+           if (d.data.value !== 0) {
             if(d.cx > d.ox) {
               return "M" + d.sx + "," + d.sy + "L" + d.ox + "," + d.oy + " " + d.cx + "," + d.cy;
             } else {
