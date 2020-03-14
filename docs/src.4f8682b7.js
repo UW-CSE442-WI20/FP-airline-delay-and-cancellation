@@ -29835,7 +29835,18 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
         svg.selectAll('mySlices').data(data_ready).enter().append("text").attr("text-anchor", "middle").attr("x", function (d) {
           var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
           d.cx = Math.cos(a) * (radius - 45);
-          return d.x = Math.cos(a) * (radius + 30);
+
+          if (d.data.key == 'Security') {
+            return d.x = Math.cos(a) * (radius + 30) + 150;
+          } else if (d.data.key == 'Airline') {
+            return d.x = Math.cos(a) * (radius + 30) + 5;
+          } else if (d.data.key == 'Weather') {
+            return d.x = Math.cos(a) * (radius + 30) - 5;
+          } else {
+            var temp = Math.cos(a) * (radius + 30) - 20;
+            if (temp < -175) return d.x = -175;
+            return d.x = Math.cos(a) * (radius + 30) - 20;
+          }
         }).attr("y", function (d) {
           var a = d.startAngle + (d.endAngle - d.startAngle) / 2 - Math.PI / 2;
           d.cy = Math.sin(a) * (radius - 45);
@@ -30127,4 +30138,4 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 })();
 },{"d3":"UzF0","./airline-colors":"Xw4n","fuzzysort":"GlPB"}]},{},["Focm"], null)
-//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.04a8fbcc.js.map
+//# sourceMappingURL=https://uw-cse442-wi20.github.io/FP-airline-delay-and-cancellation/src.4f8682b7.js.map
