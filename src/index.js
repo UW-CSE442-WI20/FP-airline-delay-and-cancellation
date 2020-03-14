@@ -681,7 +681,18 @@ import airlineColors from './airline-colors';
           .attr("x", function(d) {
             var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
             d.cx = Math.cos(a) * (radius - 45);
-            return d.x = Math.cos(a) * (radius + 30);
+            if (d.data.key == 'Security') {
+                return d.x = Math.cos(a) * (radius + 30) + 150;
+            } else if (d.data.key == 'Airline') {
+            return d.x = Math.cos(a) * (radius + 30) + 5;
+            } else if (d.data.key == 'Weather') {
+              return d.x = Math.cos(a) * (radius + 30) - 5;
+            } else {
+             var temp = Math.cos(a) * (radius + 30) - 20;
+                if (temp < -175)
+                    return d.x = -175;
+                return d.x = Math.cos(a) * (radius + 30) - 20;
+            }
           })
           .attr("y", function(d) {
             var a = d.startAngle + (d.endAngle - d.startAngle)/2 - Math.PI/2;
